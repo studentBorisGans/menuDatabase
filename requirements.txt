@@ -8,3 +8,4 @@ sqlparse==0.5.1
 urllib3==2.2.3
 numpy==1.25.1
 flask==2.3.0
+scipy==1.11.0
