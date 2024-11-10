@@ -14,6 +14,11 @@ Or: (Ctrl + Shift + P)
 
 Then pick "Python: Select Interpreter" and choose .venv
 
+## Do every time 
+1. source .venv/bin/activate
+
+*Until we can figure out how to automate this, we have to manually activate the venv every time a terminal is opened*
+
 ## Installing new library into venv
 1. Open/activate venv
 2. pip install <new_dependency>
