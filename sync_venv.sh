@@ -13,4 +13,4 @@ else
 fi
 
 # Deactivate the virtual environment after installation
-deactivate
+# deactivate
