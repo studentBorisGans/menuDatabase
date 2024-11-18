@@ -1,0 +1,1 @@
+# Direcotry for application settings
