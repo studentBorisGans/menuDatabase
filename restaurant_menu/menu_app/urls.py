@@ -1,8 +1,9 @@
 # Manages URL routing
 from django.urls import path
-from .views import home, handle_pdf_upload
+from . import views
 
 urlpatterns = [
-    path('', home, name='home'),
-    path('upload/', handle_pdf_upload, name='upload_pdf')
+    path('', views.home, name='home'),
+    path('upload/', views.handle_pdf_upload, name='upload_pdf')
+    # path('view_data/', views.handle_pdf_upload, name='upload_pdf')
 ]

@@ -4,41 +4,26 @@ from django.http import HttpResponse
 import pdfplumber
 import requests
 
-from .models import ProcessedData
+# from .models import ProcessedData
 from .forms import PDFUploadForm
+# from .utils import process_pdf, send_to_gbt, upload_data
 
 
 # Create your views here.
 def home(request):
-    return HttpResponse("Welcome! Input a PDF:")
+    return render(request, 'menu_app/home.html')
 
-def process_pdf(file_path):
-    with pdfplumber.open(file_path) as pdf:
-        text = ""
-        for page in pdf.pages:
-            text += page.extract_text()
-        return text
-    
-def send_to_gbt(data):
-    url = ""
-    response = requests.post(url, json={"data": data})
-    return response.json()
-
-def upload_data(data):
-    processed_data = ProcessedData(data=data)
-    processed_data.save()
-# put these in utils directory??
 
 def handle_pdf_upload(request):
-    if request.method == 'POST' and 'pdf_file' in request.FILES:
-        pdf_file = request.FILES['pdf_file']
-        pdf_path = save_pdf(pdf_file) #save_pdf??
-
-        processed_data = process_pdf(pdf_path)
-        api_response = send_to_gbt(processed_data)
-        upload_data(api_response)
-
-        return render(request, 'menu_app/sucess.html', {'data': api_response})
+    if request.method == 'POST':
+        form = PDFUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            pdf_file = form.cleaned_data['pdf_file']
+            print(pdf_file)
+            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'PDF uploaded successfully!'})
+        
+        else:
+            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'Invalid file type! Please upload a PDF.'})
     else:
-        form = PDFUploadForm() #what 
-        return render(request, 'menu_app/upload_pdf.html', {'form': form})
+        form = PDFUploadForm()
+    return render(request, 'menu_app/upload.html', {'form': form})
