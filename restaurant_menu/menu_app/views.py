@@ -11,7 +11,7 @@ from .forms import PDFUploadForm
 
 # Create your views here.
 def home(request):
-    return render(request, 'menu_app/home.html')
+    return render(request, 'menu_app/frontend.html')
 
 
 def handle_pdf_upload(request):

@@ -1,0 +1,372 @@
+/* Global Reset and Variables */
+:root {
+    --primary: #53c6f7;
+    --primary-dark: #1e40af;
+    --secondary: #64748b;
+    --success: #22c55e;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --background: #fcf8f8;
+    --text: #1e293b;
+    --border: #e2e8f0;
+    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  }
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    line-height: 1.5;
+  }
+
+  a {
+    color: var(--text);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Layout Components */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+  }
+  
+  .header {
+    background-color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    
+    padding: 10px 20px;
+    box-shadow: var(--shadow);
+  }
+  
+  /* Upload Area */
+  .upload-area {
+    border: 2px dashed var(--border);
+    border-radius: 8px;
+    padding: 2rem;
+    text-align: center;
+    background-color: white;
+    margin: 2rem 0;
+    transition: border-color 0.3s ease;
+  }
+  
+  .upload-area.drag-over {
+    border-color: var(--primary);
+    background-color: rgba(37, 99, 235, 0.05);
+  }
+  
+  .upload-button {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .upload-button:hover {
+    background-color: var(--primary-dark);
+  }
+  
+  /* Processing Status */
+  .processing-status {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    box-shadow: var(--shadow);
+  }
+  
+  .progress-bar {
+    height: 8px;
+    background-color: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+  }
+  
+  .progress-bar-fill {
+    height: 100%;
+    background-color: var(--primary);
+    transition: width 0.3s ease;
+  }
+  
+  /* Menu Data Display */
+  .menu-data {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+  
+  .menu-item {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow);
+  }
+  
+  .menu-item-header {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .menu-item-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .menu-item-price {
+    color: var(--primary);
+    font-weight: 600;
+    margin-top: 0.5rem;
+  }
+  
+  /* Status Indicators */
+  .status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .status-badge.processing {
+    background-color: var(--warning);
+    color: white;
+  }
+  
+  .status-badge.success {
+    background-color: var(--success);
+    color: white;
+  }
+  
+  .status-badge.error {
+    background-color: var(--danger);
+    color: white;
+  }
+  
+  /* Error Messages */
+  .error-message {
+    background-color: rgb(254, 226, 226);
+    color: var(--danger);
+    padding: 1rem;
+    border-radius: 6px;
+    margin: 1rem 0;
+  }
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .container {
+      padding: 0.5rem;
+    }
+    
+    .menu-data {
+      grid-template-columns: 1fr;
+    }
+    
+    .upload-area {
+      padding: 1rem;
+    }
+  }
+  
+  /* Animation */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  
+  .loading-spinner {
+    display: inline-block;
+    width: 1.5rem;
+    height: 1.5rem;
+    border: 2px solid var(--border);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  /* Utility Classes */
+  .text-center { text-align: center; }
+  .mt-4 { margin-top: 1rem; }
+  .mb-4 { margin-bottom: 1rem; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .justify-between { justify-content: space-between; }
+  .gap-2 { gap: 0.5rem; }
+
+  /* Add styles for the new elements */
+.title {
+    /* background: url('hero-bg.jpg') no-repeat center center/cover; Replace with your image */
+    color: black;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+.grid-layout {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin: 2rem 0;
+}
+
+.grid-item {
+    background: var(--background);
+    padding: 2rem;
+    text-align: center;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+}
+
+.testimonials {
+    display: flex;
+    gap: 2rem;
+    overflow-x: auto;
+    padding: 2rem 0;
+}
+
+.testimonial {
+    background: var(--background);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: var(--shadow);
+    min-width: 300px;
+}
+
+.footer {
+    background: var(--primary-dark);
+    margin-top: 20px;
+    padding: 10px 0;
+    color: white;
+    text-align: center;
+}
+.footer .credits {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 1200px;
+    padding: 0 20px;
+    margin: 0;
+}
+.footer .credits p {
+    color: #cccccc;
+    font-size: smaller;
+    text-align: center; /* Center-align text */
+    flex: 1; /* Ensure all items have equal width */
+}
+.footer ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    /* display: flex; */
+    /* justify-content: center; */
+    /* gap: 1rem; */
+}
+.footer a {
+    color: white;
+    text-decoration: none;
+}
+.footer a:hover{
+  text-decoration: underline;
+}
+/* .footer .credits {
+  margin: 0;
+} */
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .grid-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .testimonials {
+        flex-direction: column;
+    }
+
+    .header .container {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .header nav ul {
+        display: none;
+    }
+
+    .header nav ul.open {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .nav-toggle {
+        display: block;
+        cursor: pointer;
+    }
+}
+
+/* General styles for the navigation menu */
+.navbar {
+    display: flex;
+    justify-content: space-between;  /* Center the menu items */
+    width: 100%;
+    /* gap: 20px;  Space between menu items */
+    padding: 0;  /* Add padding on top and bottom */
+    margin: 0;
+    background-color: #ffffff;  /* Dark background color for the navbar */
+    list-style: none;  /* Remove default list styling */
+    font-family: 'Arial', sans-serif;  /* Clean, modern font */
+}
+
+.navbar li {
+    /* position: relative;  Ensure the links are positioned relative to each other */
+    flex: 1;
+    text-align: center;
+}
+
+.navbar a {
+    color: var(--text);  /* White text color */
+    text-decoration: none;  /* Remove underline */
+    font-size: 16px;  /* Set a comfortable font size */
+    font-weight: 500;  /* Slightly bold */
+    padding: 8px 16px;  /* Add padding to increase clickable area */
+    border-radius: 4px;  /* Rounded corners for each menu item */
+    transition: background-color 0.3s, transform 0.2s;  /* Smooth transitions for hover effects */
+}
+
+.navbar a:hover {
+    background-color: #797979;  /* Accent color on hover */
+    color: #fff;  /* Ensure text stays white on hover */
+    transform: translateY(-2px);  /* Slight lift effect on hover */
+}
+
+/* Hover effect when hovering over a specific list item */
+.navbar a:focus,
+.navbar a:hover {
+    outline: aqua;  /* Remove outline on focus/hover */
+}
+
+/* Optional: Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column;  /* Stack the items vertically on small screens */
+        align-items: center;  /* Center the items horizontally */
+    }
+    .navbar a {
+        padding: 12px 20px;  /* Slightly larger padding on smaller screens */
+        font-size: 18px;  /* Larger font size on smaller screens */
+    }
+}

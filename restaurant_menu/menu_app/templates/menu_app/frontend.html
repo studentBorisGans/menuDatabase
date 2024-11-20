@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management App</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&family=Open+Sans:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet"> Google Fonts -->
+</head>
+<body>
+    <header class="header">
+        <!-- <div class="container flex justify-between items-center"> -->
+            <nav>
+                <ul class="navbar">
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">How To</a></li>
+                    <!-- <li><a href="#">Services</a></li> -->
+                    <!-- <li><a href="#">Portfolio</a></li> -->
+                    <!-- <li><a href="#">Blog</a></li> -->
+                    <!-- <li><a href="#">Contact</a></li> -->
+                </ul>                
+            </nav>
+            <!-- <div class="logo"> -->
+                <!-- <img src="/logo.svg/75px.png" alt="Company Logo"> Replace with your logo -->
+            <!-- </div> -->
+            <!-- <div>
+                <a href="{% url 'upload_pdf' %}">Get Started, Upload a Menu!</a>
+            </div> -->
+        <!-- </div> -->
+    </header>
+
+    <main class="container">
+        <div class="title">
+            <h1>Welcome to our Menu Management App</h1>
+            <p>By: Boris Gans, Kareem Hawwash, Fares Qaddoumi and Gaby Vega</p>
+        </div>
+
+        <section class="grid-layout">
+            <a href="{% url 'upload_pdf' %}">
+                <div class="grid-item">
+                    <!-- <img src="icon1.svg" alt="Icon 1"> Replace with your icon -->
+                    <h3>Upload a Menu!</h3>
+                    <p>Start your Menu Management journey by uploading a menu</p>
+                </div>
+            </a>
+            <a href="">
+                <div class="grid-item">
+                    <!-- <img src="icon2.svg" alt="Icon 2"> Replace with your icon -->
+                    <h3>View Menus</h3>
+                    <p>Using our efficient system, quickly filter and search your entries based on any of our parameters</p>
+                </div>
+            </a>
+            <a href="">
+                <div class="grid-item">
+                    <!-- <img src="icon3.svg" alt="Icon 3"> Replace with your icon -->
+                    <h3>Edit Menus</h3>
+                    <p>Edit entire or individual components of a menu and access menu history</p>
+                </div>
+            </a>
+        </section>
+    </main>
+
+    <!-- Change to django + other overarching frameworks used; link to download / documentation -->
+    <footer class="footer">
+        <div class="container">
+            <nav>
+                <ul class="git">
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                </ul>
+            </nav>
+
+            <div class="credits">
+                <p>Django</p>
+                <p>MySQL</p>
+                <p>etc.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- <script src="script.js"></script> Link to your JavaScript file -->
+</body>
+</html>
