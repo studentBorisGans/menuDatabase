@@ -17,11 +17,12 @@ def home(request):
 def handle_pdf_upload(request):
     if request.method == 'POST':
         form = PDFUploadForm(request.POST, request.FILES)
+        print(form.is_valid)
+
         if form.is_valid():
             pdf_file = form.cleaned_data['pdf_file']
             print(pdf_file)
             return render(request, 'menu_app/upload.html', {'form': form, 'message': 'PDF uploaded successfully!'})
-        
         else:
             return render(request, 'menu_app/upload.html', {'form': form, 'message': 'Invalid file type! Please upload a PDF.'})
     else:
