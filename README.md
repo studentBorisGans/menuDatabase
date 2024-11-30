@@ -1,4 +1,9 @@
-# Setting up Venv
+# Menu Manager
+## Dependencies
+1. Tesseract for OCR parsing
+2. PDFPlumber for general parsing
+
+## Testing
 *Do after your first git pull*
 
 Within menuDatabase directory:
