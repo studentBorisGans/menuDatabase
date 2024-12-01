@@ -1,6 +1,8 @@
 # Handles HTTP requests and responses
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import JsonResponse
+
 import pdfplumber
 import requests
 
@@ -22,15 +24,19 @@ def handle_pdf_upload(request):
 
         if form.is_valid():
             pdf_file = form.return_cleaned_file()
+            menuName = form.return_menu_name()
             print(f"Cleaned pdf in views: {pdf_file}")
-            parse = PdfParse(pdf_file)
-            data = parse.parse()
-            if data is not None:
-                print(f"Data: {data}")
 
-            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'PDF uploaded!'})
+            parse = PdfParse(pdf_file, menuName)
+            response = parse.toImg()
+
+            return JsonResponse({'message': 'PDF processing successful.', 'output': response})
+
+            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'PDF processing successful.', 'output': response})
         else:
-            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'Invalid file type! Please upload a PDF.'})
-    else:
-        form = PDFUploadForm()
+            return JsonResponse({'error_message': form.return_error_message}, status=400)
+
+            return render(request, 'menu_app/upload.html', {'form': form, 'error_message': form.return_error_message})
+    # else:
+    form = PDFUploadForm()
     return render(request, 'menu_app/upload.html', {'form': form})
