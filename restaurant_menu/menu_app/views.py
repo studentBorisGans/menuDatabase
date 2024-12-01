@@ -31,12 +31,8 @@ def handle_pdf_upload(request):
             response = parse.toImg()
 
             return JsonResponse({'message': 'PDF processing successful.', 'output': response})
-
-            return render(request, 'menu_app/upload.html', {'form': form, 'message': 'PDF processing successful.', 'output': response})
         else:
             return JsonResponse({'error_message': form.return_error_message}, status=400)
-
-            return render(request, 'menu_app/upload.html', {'form': form, 'error_message': form.return_error_message})
     # else:
     form = PDFUploadForm()
     return render(request, 'menu_app/upload.html', {'form': form})

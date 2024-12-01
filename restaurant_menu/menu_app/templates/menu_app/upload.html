@@ -161,7 +161,10 @@
 
     <p id="error_message" style="color:red;"></p>
     <p id="message" style="color:green;"></p>
-
+    <!-- Additional parameters:
+            Restuarant info: restuarant name, (OPTIONAL): address, phone_number, email, and website 
+            Menu info: 'description' (change to name; leave other stuff), description of menu entry
+    -->
     <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
         {% csrf_token %}
         {{ form.as_p }}
