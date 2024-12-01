@@ -28,7 +28,9 @@
 
                 const data = await response.json();
                 document.getElementById('message').innerText = data.message;
-                renderJson(data.output);
+                document.getElementById('output').innerText = data.output;
+
+                // renderJson(data.output);
                 // document.getElementById('output').innerText = data.output;
 
             } catch (error) {
