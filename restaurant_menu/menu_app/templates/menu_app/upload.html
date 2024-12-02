@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Upload PDF</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
     <script>
         async function uploadPDF(event) {
             event.preventDefault();  // Prevent the default form submission
@@ -41,6 +43,19 @@
     </script>
 </head>
 <body>
+    <header class="header">
+        <div class="container flex justify-between items-center">
+            <nav>
+                <ul class="navbar">
+                    <li><a href="{%url 'home' %}">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
+                    <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
+                </ul>                
+            </nav>
+        </div>
+    </header>
+
     <h1>Upload Menu PDF</h1>
 
     <p id="error_message" style="color:red;"></p>

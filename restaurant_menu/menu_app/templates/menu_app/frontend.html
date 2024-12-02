@@ -13,20 +13,12 @@
         <div class="container flex justify-between items-center">
             <nav>
                 <ul class="navbar">
-                    <li><a href="#">Home</a></li>
-                    <li><a href="#">How To</a></li>
-                    <!-- <li><a href="#">Services</a></li> -->
-                    <!-- <li><a href="#">Portfolio</a></li> -->
-                    <!-- <li><a href="#">Blog</a></li> -->
-                    <!-- <li><a href="#">Contact</a></li> -->
+                    <li><a href="{%url 'home' %}">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
+                    <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
                 </ul>                
             </nav>
-            <!-- <div class="logo"> -->
-                <!-- <img src="/logo.svg/75px.png" alt="Company Logo"> Replace with your logo -->
-            <!-- </div> -->
-            <div>
-                <a href="{% url 'pdf_upload' %}">Get Started, Upload a Menu!</a>
-            </div>
         </div>
     </header>
 
@@ -41,23 +33,23 @@
                 <div class="grid-item">
                     <!-- <img src="icon1.svg" alt="Icon 1"> Replace with your icon -->
                     <h3>Upload a Menu!</h3>
-                    <p>Start your Menu Management journey by uploading a menu</p>
+                    <p>Start your Menu Management journey by uploading a menu!</p>
                 </div>
             </a>
-            <a href="">
+            <a href="{% url 'view_uploads' %}">
                 <div class="grid-item">
                     <!-- <img src="icon2.svg" alt="Icon 2"> Replace with your icon -->
                     <h3>View Menus</h3>
-                    <p>Using our efficient system, quickly filter and search your entries based on any of our parameters</p>
+                    <p>Powered by MySQL and simplified using Django's ORM, quickly filter and search your entries based on numerous parameters.</p>
                 </div>
             </a>
-            <a href="">
-                <div class="grid-item">
+            <!-- <a href=""> -->
+                <!-- <div class="grid-item"> -->
                     <!-- <img src="icon3.svg" alt="Icon 3"> Replace with your icon -->
-                    <h3>Edit Menus</h3>
-                    <p>Edit entire or individual components of a menu and access menu history</p>
-                </div>
-            </a>
+                    <!-- <h3>Edit Menus</h3> -->
+                    <!-- <p>Edit entire or individual components of a menu and access menu history</p> -->
+                <!-- </div> -->
+            <!-- </a> -->
         </section>
     </main>
 
@@ -70,12 +62,6 @@
                     <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
                 </ul>
             </nav>
-
-            <div class="credits">
-                <p>Django</p>
-                <p>MySQL</p>
-                <p>etc.</p>
-            </div>
         </div>
     </footer>
 

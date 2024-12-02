@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Viewer</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .restaurant {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        .restaurant-header {
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .restaurant-details {
+            display: none;
+            margin-top: 10px;
+        }
+        .menu-version {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-bottom: 5px;
+            border-radius: 3px;
+            background-color: #f9f9f9;
+            cursor: pointer;
+        }
+        .menu-version:hover {
+            background-color: #eaeaea;
+        }
+    </style>
+    {{ menu_data|json_script:"menu_data" }}
+    <script>
+f
+        function toggleDetails(restaurantId) {
+            const detailsDiv = document.getElementById(`details-${restaurantId}`);
+            if (detailsDiv.style.display === "none") {
+                detailsDiv.style.display = "block";
+            } else {
+                detailsDiv.style.display = "none";
+            }
+        }
+
+        function loadMenuVersion(versionId) {
+            // Render a new HTML file for the menu version
+            window.location.href = `/menu_version/${versionId}/`;  // Adjust this URL to your Django routing
+        }
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container flex justify-between items-center">
+            <nav>
+                <ul class="navbar">
+                    <li><a href="{%url 'home' %}">Home</a></li>
+                    <li><a href="#">About</a></li>
+                    <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
+                    <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
+                </ul>                
+            </nav>
+        </div>
+    </header>
+
+    <h1>Menu Viewer</h1>
+    <div id="restaurant-container">
+        <!-- Placeholder for dynamically inserted content -->
+    </div>
+
+    <script>
+        // Replace with JSON data passed from Django
+        // Why error???
+        const menuData = JSON.parse(document.getElementById('menu_data').textContent);
+        console.log(menuData)
+        
+        const container = document.getElementById('restaurant-container');
+
+        menuData.forEach((restaurant) => {
+            const restaurantDiv = document.createElement('div');
+            restaurantDiv.className = 'restaurant';
+
+            // Header showing restaurant name, creation date, and number of entries
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'restaurant-header';
+            headerDiv.onclick = () => toggleDetails(restaurant.id);
+
+            headerDiv.innerHTML = `
+                <span>${restaurant.name}</span>
+                <span>Created: ${restaurant.created_at}</span>
+                <span>Entries: ${restaurant.menus.length}</span>
+            `;
+            restaurantDiv.appendChild(headerDiv);
+
+            // Expandable details section
+            const detailsDiv = document.createElement('div');
+            detailsDiv.className = 'restaurant-details';
+            detailsDiv.id = `details-${restaurant.id}`;
+            detailsDiv.style.display = 'none';
+
+            // Add menu versions
+            restaurant.menus.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach((menu) => {
+                const menuDiv = document.createElement('div');
+                menuDiv.className = 'menu-version';
+                menuDiv.onclick = () => loadMenuVersion(menu.version_id);
+
+                menuDiv.innerHTML = `
+                    <div>Created: ${menu.created_at}</div>
+                    <div>Description: ${menu.description || 'No description provided'}</div>
+                    <div>Status: ${menu.status}</div>
+                `;
+                detailsDiv.appendChild(menuDiv);
+            });
+
+            restaurantDiv.appendChild(detailsDiv);
+            container.appendChild(restaurantDiv);
+        });
+    </script>
+</body>
+</html>

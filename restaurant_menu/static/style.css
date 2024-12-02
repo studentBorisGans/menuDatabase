@@ -8,8 +8,8 @@
     --warning: #f59e0b;
     --background: #fcf8f8;
     --text: #1e293b;
-    --border: #e2e8f0;
-    --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --border: #e0e0e0;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
   
   * {
@@ -33,23 +33,48 @@
     text-decoration: underline;
   }
   
-  /* Layout Components */
+  /* General Layout */
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 1rem;
   }
   
+  /* HEADER */
   .header {
-    background-color: rgb(255, 255, 255);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: space-between;
+
+    background-color: #f8f9fa;
     border-bottom: 1px solid var(--border);
-    
     padding: 10px 20px;
     box-shadow: var(--shadow);
   }
+  .navbar {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    margin: 0;
+    padding: 0;
+  }
+  .navbar li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    font-weight: 500;
+    padding: 5px 10px;
+    transition: color 0.3s, background-color 0.3s;
+  }
+  .navbar li a:hover {
+    background-color: #e9ecef;
+    color: #007bff;
+    border-radius: 5px;
+  }
+  /* HEADER */
+
+
+
   
   /* Upload Area */
   .upload-area {
@@ -248,41 +273,36 @@
     min-width: 300px;
 }
 
+
+/* FOOTER */
 .footer {
-    background: var(--primary-dark);
-    margin-top: 20px;
-    padding: 10px 0;
-    color: white;
-    text-align: center;
+    position: fixed; /* Ensures it stays at the bottom of the viewport */
+    bottom: 0; /* Anchors the footer to the bottom */
+    width: 100%; /* Makes the footer stretch across the page */
+    background-color: rgb(51, 17, 247); /* Light background for clarity */
+    padding: 0.5rem 0; /* Minimal padding for a compact look */
+    border-top: 1px solid #ddd; /* Optional: Adds a subtle border for separation */
 }
-.footer .credits {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-    max-width: 1200px;
-    padding: 0 20px;
-    margin: 0;
+.footer .git {
+  display: flex; /* Ensures the links are displayed inline */
+  justify-content: center; /* Centers the links horizontally */
+  list-style: none; /* Removes bullets */
+  padding: 0;
+  margin: 0;
 }
-.footer .credits p {
-    color: #cccccc;
-    font-size: smaller;
-    text-align: center; /* Center-align text */
-    flex: 1; /* Ensure all items have equal width */
+
+.footer .git li {
+  margin: 0 1rem; /* Adds space between links */
 }
-.footer ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-    /* display: flex; */
-    /* justify-content: center; */
-    /* gap: 1rem; */
-}
+
 .footer a {
-    color: white;
-    text-decoration: none;
+  text-decoration: none; /* Removes underlines */
+  color: #007BFF; /* Adds a pleasant link color */
+  font-size: 0.9rem; /* Slightly smaller text for compactness */
 }
-.footer a:hover{
-  text-decoration: underline;
+
+.footer a:hover {
+  text-decoration: underline; /* Adds an underline on hover for accessibility */
 }
 /* .footer .credits {
   margin: 0;
@@ -318,46 +338,9 @@
     }
 }
 
-/* General styles for the navigation menu */
-.navbar {
-    display: flex;
-    justify-content: space-between;  /* Center the menu items */
-    width: 100%;
-    /* gap: 20px;  Space between menu items */
-    padding: 0;  /* Add padding on top and bottom */
-    margin: 0;
-    background-color: #ffffff;  /* Dark background color for the navbar */
-    list-style: none;  /* Remove default list styling */
-    font-family: 'Arial', sans-serif;  /* Clean, modern font */
-}
 
-.navbar li {
-    /* position: relative;  Ensure the links are positioned relative to each other */
-    flex: 1;
-    text-align: center;
-}
 
-.navbar a {
-    color: var(--text);  /* White text color */
-    text-decoration: none;  /* Remove underline */
-    font-size: 16px;  /* Set a comfortable font size */
-    font-weight: 500;  /* Slightly bold */
-    padding: 8px 16px;  /* Add padding to increase clickable area */
-    border-radius: 4px;  /* Rounded corners for each menu item */
-    transition: background-color 0.3s, transform 0.2s;  /* Smooth transitions for hover effects */
-}
 
-.navbar a:hover {
-    background-color: #797979;  /* Accent color on hover */
-    color: #fff;  /* Ensure text stays white on hover */
-    transform: translateY(-2px);  /* Slight lift effect on hover */
-}
-
-/* Hover effect when hovering over a specific list item */
-.navbar a:focus,
-.navbar a:hover {
-    outline: aqua;  /* Remove outline on focus/hover */
-}
 
 /* Optional: Responsive Design */
 @media (max-width: 768px) {

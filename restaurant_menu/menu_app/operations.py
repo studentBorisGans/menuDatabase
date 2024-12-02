@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Prefetch
 from .models import (
     Restaurants,
     Menus,
@@ -93,9 +93,10 @@ class MenuService:
             version_id=version_id, status=status, error_message=error_message
         )
     
-    @staticmethod
     # Transaction to rollback DB in case of DB error; logs are for processing errors, not DB errors
     @transaction.atomic
+    @staticmethod
+
     def upload_full_menu(restaurant_data, menu_data):
         """
         Uploads a complete menu following the defined model structure.
@@ -207,5 +208,75 @@ class MenuService:
             log = MenuService.create_processing_log(menu_version.version_id, "Success")
 
         return completeSuccess #Var to denote if partial fail or complete success
+
+# menu_data_test = [
+#     {
+#         "id": 1,
+#         "name": "Restaurant A",
+#         "created_at": "2024-12-01",
+#         "menus": [
+#             {
+#                 "version_id": 101,
+#                 "created_at": "2024-12-01T10:00:00",
+#                 "description": "Main menu",
+#                 "status": "Successful"
+#             },
+#             {
+#                 "version_id": 102,
+#                 "created_at": "2024-11-25T15:30:00",
+#                 "description": "Holiday menu",
+#                 "status": "Failed"
+#             }
+#         ]
+#     },
+#     {
+#         "id": 2,
+#         "name": "Restaurant B",
+#         "created_at": "2024-11-20",
+#         "menus": []
+#     }
+# ]
+
+    def get_initial_data():
+
+        restaurants = Restaurants.objects.all()
+        menu_data = []
+
+        for restaurant in restaurants:
+            # Get menus for this restaurant
+            menus = Menus.objects.filter(restaurant=restaurant)
+
+            menu_list = []
+            for menu in menus:
+                # Get menu versions
+                versions = Menu_Versions.objects.filter(menu=menu).order_by('-created_at')
+                for version in versions:
+                    # Fetch processing log for each version
+                    log = MenuProcessingLogs.objects.filter(version_id=version.version_id).first()
+                    status = log.status if log else "Unknown"
+                    error_message = log.error_message if log else None
+
+                    # Append version data to menu list
+                    menu_list.append({
+                        "version_id": version.version_id,
+                        "created_at": version.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "description": version.description,
+                        "status": status,
+                        "error_message": error_message,
+                    })
+
+            # Append restaurant data to final structure
+            menu_data.append({
+                "id": restaurant.restaurant_id,
+                "name": restaurant.name,
+                "created_at": restaurant.created_at.strftime("%Y-%m-%d"),
+                "menus": menu_list,
+            })
+        print(f"Menu Data: \n{menu_data}")
+
+        return menu_data
+    
+
+
 
 
