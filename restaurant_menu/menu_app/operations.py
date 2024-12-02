@@ -60,11 +60,14 @@ class MenuService:
         )
 
     @staticmethod
-    def create_menu_item(section_id, name, price, description):
+    def create_menu_item(section_id, name, description, price):
         """Creates an item in a menu section."""
         if price is None:
             price = 0.00
-        price = round(price, 2) #Ensuring only two decimals
+        try:
+            price = round(float(price), 2) #Ensuring only two decimals
+        except ValueError:
+            raise ValueError(f"Invalid price value of {name}: {price}.")
         return MenuItems.objects.create(
             section_id=section_id, name=name, description=description, price=price
         )
@@ -142,6 +145,11 @@ class MenuService:
             #  }]
         # }
 
+
+        print(f"Menu Data Received:\n{menu_data}")
+        
+        #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
+        
         # Get or create the restaurant
         restaurant = MenuService.get_or_create_restaurant(restaurant_data)
         restaurant_id = restaurant.restaurant_id
@@ -152,36 +160,52 @@ class MenuService:
         # Find current version number for restuarnt, if it exists
         menu_version = MenuService.create_menu_version(menu_id, menu.description)
         version_number = menu_version.version_number
+        #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
+
+        completeSuccess = True
+        sectionErrors = []
 
         sections = menu_data.get("sections", [])
         if sections is not None:
-            if sections[0].get("section_name") is not None: 
+
             # Checking for any of the possible error messages
-                for sectionVar in sections:
-                    section = MenuService.get_or_create_menu_section(menu_id, sectionVar.get("section_name")) #Include description later
-                    for menuItemVar in section.get("menu_items"):
+            for i, sectionVar in enumerate(sections):
+                if sectionVar.get("section_name") is not None:
+                    section = MenuService.get_or_create_menu_section(menu_id, sectionVar.get("section_name")) #Include description later?
+                    for menuItemVar in sectionVar.get("menu_items"):
                         menuItem = MenuService.create_menu_item(section.section_id, menuItemVar.get("menu_item"), menuItemVar.get("description"), menuItemVar.get("price"))
-                        # Use enumerate instead of object for section_id? Faster?
+
                         if menuItemVar.get("dietary_restiction") is not None:
                             try:
                                 dietRestriction = MenuService.get_or_create_dietary_restriction(restaurant_id, menuItemVar.get("dietary_restriction"))
                                 itemRestriction = MenuService.create_menu_item_restriction(menuItem.item_id, dietRestriction.restriction_id)
                             except IntegrityError as e:
                                 print(f"Constraint violation in Menu_Items_Dietary_Restrictions: {e}")
-                                log = MenuService.create_processing_log(menu_version.version_id, "Fail", e)
-                                return
+                                log = MenuService.create_processing_log(menu_version.version_id, "Fail", f"Constraint violation in Menu_Items_Dietary_Restrictions: {e}")
+                                return False #Unrecovable error; DB operation rollsback
                             
-                            log = MenuService.create_processing_log(menu_version.version_id, "Success")
-            else:
-                # SECOND ERROR MESSAGE
-                print("SECOND ERROR MESSAGE")
-                log = MenuService.create_processing_log(menu_version.version_id, "Fail", sections[0].get("Error Message"))
-                return 
+                else:
+                    # SECOND ERROR MESSAGE; Section specific error; save section numbers and add to logs after
+                    print("SECOND ERROR MESSAGE")
+                    sectionErrors.append((i+1, sectionVar.get("Error Message")))
+                    completeSuccess = False
         
         else:
-            # FIRST ERROR MESSAGE
+            # FIRST ERROR MESSAGE; Complete failure, only restuarant data uploaded + menus + menu_versions
             print("FIRST ERROR MESSAGE")
             log = MenuService.create_processing_log(menu_version.version_id, "Fail", menu_data.get("Error Message"))
-            return 
+            completeSuccess = False
+            return completeSuccess
+
+        sectionNums = ""
+        for error in sectionErrors:
+            sectionNums += error[0] + ", "
+            sectionErr = sectionErrors[0][1] #Just return the first error message received; otherwise too long
+        if len(sectionErrors) >= 1:
+            log = MenuService.create_processing_log(menu_version.version_id, "Partial Fail", f"Errors in sections {sectionNums}: {sectionErr}")
+        else:
+            log = MenuService.create_processing_log(menu_version.version_id, "Success")
+
+        return completeSuccess #Var to denote if partial fail or complete success
 
 

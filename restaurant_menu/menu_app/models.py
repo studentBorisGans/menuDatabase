@@ -16,7 +16,7 @@ class Restaurants(models.Model):
 
 class Menus(models.Model):
     menu_id = models.AutoField(primary_key=True)
-    restaurant_id = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='menus')
+    restaurant = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='menus')
     description = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -25,15 +25,22 @@ class Menus(models.Model):
 
 class Menu_Versions(models.Model):
     version_id = models.AutoField(primary_key=True)
-    menu_id = models.ForeignKey(Menus, on_delete=models.CASCADE, related_name='versions')
+    menu = models.ForeignKey(Menus, on_delete=models.CASCADE, related_name='versions')
     version_number = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.version_number:
+            # Automatically set version_number to the next increment for the same menu
+            last_version = Menu_Versions.objects.filter(menu=self.menu).order_by('-version_number').first()
+            self.version_number = (last_version.version_number + 1) if last_version else 1
+        super().save(*args, **kwargs)
 
 
 class MenuSections(models.Model):
     section_id = models.AutoField(primary_key=True)
-    menu_id = models.ForeignKey(Menus, on_delete=models.CASCADE, related_name='sections')
+    menu = models.ForeignKey(Menus, on_delete=models.CASCADE, related_name='sections')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
@@ -42,7 +49,7 @@ class MenuSections(models.Model):
 
 class MenuItems(models.Model):
     item_id = models.AutoField(primary_key=True)
-    section_id = models.ForeignKey(MenuSections, on_delete=models.CASCADE, related_name='items')
+    section = models.ForeignKey(MenuSections, on_delete=models.CASCADE, related_name='items')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -52,7 +59,7 @@ class MenuItems(models.Model):
 
 class DietaryRestrictions(models.Model):
     restriction_id = models.AutoField(primary_key=True)
-    restaurant_id = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='dietary_restrictions')
+    restaurant = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='dietary_restrictions')
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
 
@@ -60,18 +67,18 @@ class DietaryRestrictions(models.Model):
         return self.name
 
 class MenuItemDietaryRestrictions(models.Model):
-    item_id = models.ForeignKey(MenuItems, on_delete=models.CASCADE)
-    restriction_id = models.ForeignKey(DietaryRestrictions, on_delete=models.CASCADE)
+    item = models.ForeignKey(MenuItems, on_delete=models.CASCADE)
+    restriction = models.ForeignKey(DietaryRestrictions, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('item_id', 'restriction_id')
+        unique_together = ('item', 'restriction') #OR add ID????
 
     def __str__(self):
         return f"{self.item.name} - {self.restriction.name}"
 
 class MenuProcessingLogs(models.Model):
     log_id = models.AutoField(primary_key=True)
-    version_id = models.ForeignKey(Menu_Versions, on_delete=models.CASCADE, related_name='processing_logs', null=True)
+    version = models.ForeignKey(Menu_Versions, on_delete=models.CASCADE, related_name='processing_logs', null=True)
     status = models.CharField(max_length=50)
     error_message = models.TextField(blank=True, null=True)
     processed_at = models.DateTimeField(auto_now_add=True)

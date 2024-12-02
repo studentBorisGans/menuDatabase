@@ -47,23 +47,24 @@ class PdfParse:
                 
                 for page, response in enumerate(responses):
                     if response[0] is not False:
-                        if isinstance(response[1], dict) and "sections" in response[1]:
-                            page_data = response[1].get("sections", [])
+                        if isinstance(response[1][0], dict):
+                            page_data = response[1]
 
                         else:
-                            page_data = {"Error Message": f"Error in page number {page}: Iould not be parsed for menu data. It most likley did not have any menu content."}
+                            page_data = [{"Error Message": f"Error in page number {page}: Could not be parsed for menu data. It most likley did not have any menu content."}]
 
                     else:
-                        page_data = {"Error Message": f"Error in page number {page}: {self.errorMsg}."}
+                        page_data = [{"Error Message": f"Error in page number {page}: {self.errorMsg}."}]
 
-                    returnJson['sections'] = page_data
-                return returnJson
+                    print(f"Page_data: \n{page_data}")
+                    returnJson['sections'].extend(page_data) #Appending list of JSON objects to sections, a field whose value is a list.
+                return (True, returnJson)
 
         except Exception as e:
             print(f"Error converting to image: {e}")
-            return json.dumps({"description": self.menuName,
-                "Error Message": e
-            })
+            return (False, json.dumps({"description": self.menuName,
+                "Error Message": f"{e}"
+            }))
 
 
     def genResponse(self, img, page):
@@ -77,7 +78,9 @@ class PdfParse:
                         "content": [
                             {
                                 "type": "text",
-                                "text": f"You are analyzing a menu that I need to turn into structured data. Provide a JSON object with these fields: 'page', 'section_name', 'menu_item', 'price', 'dietary_restriction', and 'description'. If you can't determine a field ensure its a valid JSON placeholden like 'null', except for sections. If you can't figure out a section name simply write down its section number (in the order that you reach it). Most importantly, I need the relationships to be accurate, so even if you can't find the section name of something ensure the relationships are correct, for example, still make sure that the correct menu_items are children of that unamed section. Another very important point is that for every section you find there might be multiple child sections. Make sure you still include those, and ensure that you are very confident when assigning a price, its ok if you leave it as 'null' if you're not sure. It also seems that you tend to interpret calories (cal.) as price, prices are always standalone digits or are preceded/followed by a currency symbol. ONLY RETURN VALID JSON",
+                                "text": 
+                                """You are analyzing a menu that I need to turn into structured data. Provide a JSON object with these fields: 'section_name', 'menu_item', 'price', 'dietary_restriction', and 'description'. If you can't determine a field ensure its a valid JSON placeholden like 'null', except for sections. If you can't figure out a section name simply write down its section number (in the order that you reach it). Most importantly, I need the relationships to be accurate, so even if you can't find the section name of something ensure the relationships are correct, for example, still make sure that the correct menu_items are children of that unamed section. However, try and be more liberal when it comes to naming sections. You can assume a section based off of the menu_items it contains, as long as you DONT REPEAT SECTION NAMES. Also try and be a little more liberal for dietary restrictions, if its clear that a menu_item only has veggies for example then you can denote it as such, just make sure to use actual dietary restriction names (gluten-free, vegan, vegetarian, peanut-free, etc.). It also seems that you tend to interpret calories (cal.) as price, prices are always standalone digits or are preceded/followed by a currency symbol. ONLY RETURN VALID JSON, and always just return an array of JSON objects starting with section_name. 
+                                This is a sample of an expected output, note that I will be appending the output to the "sections" field, I just want an array of json objects denoting each section and its respective menu_items: "sections": [{"section_name": <section_name>, "menu_items": [ {"menu_item": "Cheesy Double Decker Taco", "price": null, "dietary_restriction": null, "description": null}, ...]. Lastly, and this is very important, if you determine that the image is not a menu (or you simply are unable to parse any of it), ONLY return False as your first choice, not in JSON format. This is important.""",
                             },
                             {
                                 "type": "image_url",
@@ -90,14 +93,18 @@ class PdfParse:
                 ],
             )
             choice = response.choices[0]
-            if hasattr(choice, 'message') and choice.message:
+            if isinstance(choice, bool):
+                self.errorMsg = f"Failed to parse JSON content for page number {page}."
+                print(f"Failed to parse JSON content: {json_content}")
+                return  
+            elif hasattr(choice, 'message') and choice.message:
                 content = choice.message.content
                 json_match = re.search(r"```json\n(.*?)```", content, re.DOTALL)
 
                 if json_match:
                     json_content = json_match.group(1)  # Extract the JSON part
                     json_content = json_content.strip() #Get rid of extra whitespace
-                    print(f"json_content: {json_content}")
+                    # print(f"json_content: {json_content}")
                     try:
                         parsed_content = json.loads(json_content)  # Parse the JSON content
                         return parsed_content
