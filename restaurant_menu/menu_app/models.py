@@ -29,7 +29,13 @@ class Menu_Versions(models.Model):
     version_number = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
     description = models.TextField(blank=True, null=True)
-    
+    def save(self, *args, **kwargs):
+        if self._state.adding and not self.version_number:
+            # Only calculate version_number for new entries
+            last_version = Menu_Versions.objects.filter(menu=self.menu).order_by('-version_number').first()
+            self.version_number = (last_version.version_number + 1) if last_version else 1
+        super().save(*args, **kwargs)
+        
     def save(self, *args, **kwargs):
         if not self.version_number:
             # Automatically set version_number to the next increment for the same menu

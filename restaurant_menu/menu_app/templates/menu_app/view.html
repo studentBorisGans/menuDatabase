@@ -6,39 +6,6 @@
     <title>Menu Viewer</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .restaurant {
-            border: 1px solid #ccc;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        .restaurant-header {
-            display: flex;
-            justify-content: space-between;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .restaurant-details {
-            display: none;
-            margin-top: 10px;
-        }
-        .menu-version {
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-bottom: 5px;
-            border-radius: 3px;
-            background-color: #f9f9f9;
-            cursor: pointer;
-        }
-        .menu-version:hover {
-            background-color: #eaeaea;
-        }
-    </style>
     {{ menu_data|json_script:"menu_data" }}
     <script>
 f
@@ -63,7 +30,7 @@ f
             <nav>
                 <ul class="navbar">
                     <li><a href="{%url 'home' %}">Home</a></li>
-                    <li><a href="#">About</a></li>
+                    <li><a href="{%url 'about' %}">About</a></li>
                     <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
                     <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
                 </ul>                
@@ -91,8 +58,12 @@ f
             // Header showing restaurant name, creation date, and number of entries
             const headerDiv = document.createElement('div');
             headerDiv.className = 'restaurant-header';
-            headerDiv.onclick = () => toggleDetails(restaurant.id);
+            headerDiv.style.display = 'flex';
+            headerDiv.style.justifyContent = 'space-between';
+            headerDiv.style.alignItems = 'center';
 
+            headerDiv.onclick = () => toggleDetails(restaurant.id);
+            
             headerDiv.innerHTML = `
                 <span>${restaurant.name}</span>
                 <span>Created: ${restaurant.created_at}</span>
@@ -124,5 +95,16 @@ f
             container.appendChild(restaurantDiv);
         });
     </script>
+
+    <footer class="footer">
+        <div class="container">
+            <nav>
+                <ul class="git">
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
 </body>
 </html>

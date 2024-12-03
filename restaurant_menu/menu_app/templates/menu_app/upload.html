@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload PDF</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
@@ -48,7 +49,7 @@
             <nav>
                 <ul class="navbar">
                     <li><a href="{%url 'home' %}">Home</a></li>
-                    <li><a href="#">About</a></li>
+                    <li><a href="{%url 'about' %}">About</a></li>
                     <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
                     <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
                 </ul>                
@@ -56,21 +57,36 @@
         </div>
     </header>
 
-    <h1>Upload Menu PDF</h1>
+    <div id="general">
+        <h1>Upload Menu PDF</h1>
 
-    <p id="error_message" style="color:red;"></p>
-    <p id="message" style="color:green;"></p>
-    <!-- Additional parameters:
-            Restuarant info: restuarant name, (OPTIONAL): address, phone_number, email, and website 
-            Menu info: 'description' (change to name; leave other stuff), description of menu entry
-    -->
-    <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload</button>
-    </form>
+        <p id="error_message" style="color:red;"></p>
+        <p id="message" style="color:green;"></p>
+        <!-- Additional parameters:
+                Restuarant info: restuarant name, (OPTIONAL): address, phone_number, email, and website 
+                Menu info: 'description' (change to name; leave other stuff), description of menu entry
+        -->
+        <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Upload</button>
+        </form>
 
-    <p>Response:</p>
-    <div id="output"></div>
+        <!-- Change to be user friendly: if true then ..., false then ... -->
+        <p>Response:</p>
+        <div id="output"></div>
+    </div>
+    
+
+    <footer class="footer">
+        <div class="container">
+            <nav>
+                <ul class="git">
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
 </body>
 </html>

@@ -97,6 +97,7 @@ class MenuService:
     @transaction.atomic
     @staticmethod
 
+# Version number auto-incremenet broken?
     def upload_full_menu(restaurant_data, menu_data):
         """
         Uploads a complete menu following the defined model structure.
@@ -160,6 +161,7 @@ class MenuService:
 
         # Find current version number for restuarnt, if it exists
         menu_version = MenuService.create_menu_version(menu_id, menu.description)
+        menu_version.save() #Is this right???? Or is accessing version_number before its saved what's breaking the save method?
         version_number = menu_version.version_number
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
 
@@ -208,6 +210,8 @@ class MenuService:
             log = MenuService.create_processing_log(menu_version.version_id, "Success")
 
         return completeSuccess #Var to denote if partial fail or complete success
+
+
 
 # menu_data_test = [
 #     {
@@ -259,7 +263,7 @@ class MenuService:
                     # Append version data to menu list
                     menu_list.append({
                         "version_id": version.version_id,
-                        "created_at": version.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "created_at": version.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
                         "description": version.description,
                         "status": status,
                         "error_message": error_message,

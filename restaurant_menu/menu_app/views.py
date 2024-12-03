@@ -54,6 +54,9 @@ menu_data_test = [
 def home(request):
     return render(request, 'menu_app/frontend.html')
 
+def about(request):
+    return render(request, "menu_app/about.html")
+
 
 def handle_pdf_upload(request):
     if request.method == 'POST':
