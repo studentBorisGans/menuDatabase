@@ -2,15 +2,29 @@ from django import forms
 from PyPDF2 import PdfReader
 
 class PDFUploadForm(forms.Form):
+    # Restaurnt INFO
+    name = forms.CharField(max_length=100, required=True, label="Restaurant Name")
+    address = forms.CharField(max_length=200, required=False, label="Restaurant Address")
+    phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
+    email = forms.EmailField(required=False, label="Email Address")
+    website = forms.URLField(required=False, label="Website URL")
+
     menu_name = forms.CharField(max_length=100, required=True, label="Menu Name")
     pdf_file = forms.FileField()
 
+    # restaurant_data = {
+        #     "name": <name>,
+        #     "address": <address>, nullable
+        #     "phone_number": <phone_number>, nullable
+        #     "email": <email>, nullable
+        #     "website": <website>, nullable
+        # }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.cleaned_file = None
         self.error_message = None
-
+        self.restaurnt_info = None
 
     def is_valid(self):
         print("Validating document...")
@@ -58,3 +72,12 @@ class PDFUploadForm(forms.Form):
     
     def return_error_message(self):
         return self.error_message 
+    
+    def return_restaurant_info(self):
+        return {
+            "name": self.cleaned_data.get("name"),
+            "address": self.cleaned_data.get("address"),
+            "phone_number": self.cleaned_data.get("phone_number"),
+            "email":self.cleaned_data.get("email"),
+            "website":self.cleaned_data.get("website")
+        }

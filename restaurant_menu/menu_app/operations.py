@@ -19,11 +19,11 @@ class MenuService:
     def get_or_create_restaurant(restaurant_data):
         """Gets or creates a restaurant entry."""
         restaurant, created = Restaurants.objects.get_or_create(
-            name=restaurant_data['name'], defaults={
-                "address": restaurant_data['address'],
-                "phone_number": restaurant_data['phone_number'],
-                "email": restaurant_data['email'],
-                "website": restaurant_data['website']
+            name=restaurant_data.get('name'), defaults={
+                "address": restaurant_data.get('address'),
+                "phone_number": restaurant_data.get('phone_number'),
+                "email": restaurant_data.get('email'),
+                "website": restaurant_data.get('website')
             }
         )
         return restaurant
@@ -149,6 +149,7 @@ class MenuService:
 
 
         print(f"Menu Data Received:\n{menu_data}")
+        print(f"Restaurant Data Received: \n{restaurant_data}")
         
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
         
@@ -162,7 +163,7 @@ class MenuService:
         # Find current version number for restuarnt, if it exists
         menu_version = MenuService.create_menu_version(menu_id, menu.description)
         menu_version.save() #Is this right???? Or is accessing version_number before its saved what's breaking the save method?
-        version_number = menu_version.version_number
+        # version_number = menu_version.version_number
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
 
         completeSuccess = True
@@ -189,7 +190,7 @@ class MenuService:
                             
                 else:
                     # SECOND ERROR MESSAGE; Section specific error; save section numbers and add to logs after
-                    print("SECOND ERROR MESSAGE")
+                    print("SECOND ERROR MESSAGE\n\n\n")
                     sectionErrors.append((i+1, sectionVar.get("Error Message")))
                     completeSuccess = False
         
@@ -202,7 +203,7 @@ class MenuService:
 
         sectionNums = ""
         for error in sectionErrors:
-            sectionNums += error[0] + ", "
+            sectionNums += str(error[0]) + ", "
             sectionErr = sectionErrors[0][1] #Just return the first error message received; otherwise too long
         if len(sectionErrors) >= 1:
             log = MenuService.create_processing_log(menu_version.version_id, "Partial Fail", f"Errors in sections {sectionNums}: {sectionErr}")

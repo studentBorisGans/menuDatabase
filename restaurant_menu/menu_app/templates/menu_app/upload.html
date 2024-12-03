@@ -66,10 +66,11 @@
                 Restuarant info: restuarant name, (OPTIONAL): address, phone_number, email, and website 
                 Menu info: 'description' (change to name; leave other stuff), description of menu entry
         -->
+
         <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Upload</button>
+            <button type="submit" id="uploadButton">Upload</button>
         </form>
 
         <!-- Change to be user friendly: if true then ..., false then ... -->

@@ -5,7 +5,7 @@ class Restaurants(models.Model):
     name = models.CharField(max_length=255)
     address = models.TextField(null=True)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(unique=True, null=True)
+    email = models.EmailField(unique=False, null=True)
     website = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -35,7 +35,7 @@ class Menu_Versions(models.Model):
             last_version = Menu_Versions.objects.filter(menu=self.menu).order_by('-version_number').first()
             self.version_number = (last_version.version_number + 1) if last_version else 1
         super().save(*args, **kwargs)
-        
+
     def save(self, *args, **kwargs):
         if not self.version_number:
             # Automatically set version_number to the next increment for the same menu

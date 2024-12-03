@@ -111,6 +111,23 @@ body {
   margin: 0;
 }
 
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.grid-item {
+  background: var(--background);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+
+
 footer {
   position: fixed;
   bottom: 0;
@@ -166,10 +183,33 @@ footer {
 
   /* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
 /* Not working; temporary cleaning of upload menu */
-.general { 
-  text-align: center;
-  background: var(--background);
-  text-align: center;
+#general { 
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column; /* Stack child elements vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  height: 100vh; /* Make the container take up the full viewport height */
+  text-align: center; /* Center-align text inside the container */
+  margin: 0 auto; /* Ensure it stays centered horizontally */
+  background-color: #f9f9f9; /* Optional: Add a light background for better appearance */
+  border: 1px solid #ddd; /* Optional: Add a subtle border */
+  border-radius: 8px; /* Optional: Slightly round the corners */
+  padding: 20px; /* Optional: Add padding around the content */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+#uploadButton {
+  margin-top: 10px; /* Add space above the button */
+  padding: 10px 20px; /* Add padding to make the button larger */
+  border: none;
+  border-radius: 4px; /* Slightly rounded corners */
+  background-color: #007bff; /* Primary blue color */
+  color: white; /* White text for contrast */
+  font-size: 16px; /* Adjust font size */
+  cursor: pointer; /* Show a pointer on hover */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+#uploadButton:hover {
+  background-color: #0056b3; /* Darker blue on hover */
 }
 /* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
 
