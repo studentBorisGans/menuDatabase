@@ -13,7 +13,7 @@ class Restaurants(models.Model):
         return self.name
     
 
-
+# Refactor defualts/blank
 class Menus(models.Model):
     menu_id = models.AutoField(primary_key=True)
     restaurant = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='menus')
@@ -53,6 +53,7 @@ class MenuSections(models.Model):
     def __str__(self):
         return f"Section: {self.name} in {self.menu}"
 
+# Change defaults
 class MenuItems(models.Model):
     item_id = models.AutoField(primary_key=True)
     section = models.ForeignKey(MenuSections, on_delete=models.CASCADE, related_name='items')
