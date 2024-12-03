@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu Management App</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <script>
+        const menuId = {{ menu_id }};  // Pass the menu ID to the script
+    </script>
+</head>
+<body>
+    <header class="header">
+        <div class="container flex justify-between items-center">
+            <nav>
+                <ul class="navbar">
+                    <li><a href="{%url 'home' %}">Home</a></li>
+                    <li><a href="{%url 'about' %}">About</a></li>
+                    <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
+                    <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
+                </ul>                
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <br>
+        <br>
+        <br>
+        <br> 
+        <!-- Temp fix for bad formatting -->
+
+
+        <h1>Inspect Menu</h1>
+        <div id="menu">
+            <!-- Placeholder for dynamically inserted content -->
+        </div>
+        
+    </main>
+
+    <script>
+        const menuDataDiv = document.getElementById('menu');
+
+        // Fetch menu data
+        fetch(`/menu_version/${menuId}/data/`)
+            .then(response => response.json())
+            .then(data => {
+                menuDataDiv.innerHTML = `
+                    <p><strong>Version ID:</strong> ${data.version_id}</p>
+                    <p><strong>Created At:</strong> ${data.created_at}</p>
+                    <p><strong>Description:</strong> ${data.description}</p>
+                    <p><strong>Status:</strong> ${data.status}</p>
+                `;
+                console.log(data)
+            })
+            .catch(error => {
+                console.error('Error fetching menu data:', error);
+                menuDataDiv.textContent = 'Failed to load menu data.';
+            });
+
+    </script>
+    <!-- Change to django + other overarching frameworks used; link to download / documentation -->
+    <footer class="footer">
+        <div class="container">
+            <nav>
+                <ul class="git">
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
+                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                </ul>
+            </nav>
+        </div>
+    </footer>
+</body>
+</html>

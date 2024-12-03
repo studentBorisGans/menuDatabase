@@ -40,7 +40,7 @@
                 }
 
                 const data = await response.json();
-                console.log("Server Response: ", result)
+                console.log("Server Response: ", data)
                 alert("PDF uploaded successfully!");
 
                 document.getElementById('message').innerText = data.message;
@@ -139,8 +139,6 @@
 </body>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-
-        console.log(restaurantData)
 
         const restaurantSelect = document.getElementById('restaurant_name');
         const newRestaurantContainer = document.getElementById('new-restaurant-container');

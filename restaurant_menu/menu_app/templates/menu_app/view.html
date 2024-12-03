@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     {{ menu_data|json_script:"menu_data" }}
     <script>
-f
         function toggleDetails(restaurantId) {
             const detailsDiv = document.getElementById(`details-${restaurantId}`);
             if (detailsDiv.style.display === "none") {
@@ -18,9 +17,9 @@ f
             }
         }
 
-        function loadMenuVersion(versionId) {
+        function loadMenuVersion(menuId) {
             // Render a new HTML file for the menu version
-            window.location.href = `/menu_version/${versionId}/`;  // Adjust this URL to your Django routing
+            window.location.href = `/inspect_menu/${menuId}/`;
         }
     </script>
 </head>
@@ -81,19 +80,74 @@ f
             restaurant.menus.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach((menu) => {
                 const menuDiv = document.createElement('div');
                 menuDiv.className = 'menu-version';
-                menuDiv.onclick = () => loadMenuVersion(menu.version_id);
+                menuDiv.onclick = () => loadMenuVersion(menu.menu_id);
+                
+                const menuContent = document.createElement('div');
+                menuContent.style.display = 'flex'; // Use flexbox to spread items
+                menuContent.style.justifyContent = 'space-between'; // Spread items across the div
+                menuContent.style.alignItems = 'center'; // Align items vertically in the center
+                menuContent.style.flex = '1';
+                menuContent.style.marginRight = '10px';
 
-                menuDiv.innerHTML = `
-                    <div>Created: ${menu.created_at}</div>
-                    <div>Description: ${menu.description || 'No description provided'}</div>
-                    <div>Status: ${menu.status}</div>
+                menuContent.innerHTML = `
+                    <span><strong>Created:</strong> ${menu.created_at}</span>
+                    <span><strong>Description:</strong> ${menu.description || 'No description provided'}</span>
+                    <span><strong>Status:</strong> ${menu.status}</span>
                 `;
+
+                // Buttons
+                const buttonContainer = document.createElement('div');
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete'
+                deleteButton.textContent = 'Delete';
+                deleteButton.style.backgroundColor = '#dc3545';
+                deleteButton.style.color = '#fff';
+                deleteButton.style.border = 'none';
+                deleteButton.style.borderRadius = '5px';
+                deleteButton.style.padding = '5px 10px';
+                deleteButton.style.cursor = 'pointer';
+                deleteButton.onclick = (e) => {
+                    e.stopPropagation(); // Prevent triggering the parent onclick event
+                    deleteMenu(menu.menu_id);
+                };
+                buttonContainer.appendChild(deleteButton);
+
+                menuDiv.appendChild(menuContent);
+                menuDiv.appendChild(buttonContainer);
+
                 detailsDiv.appendChild(menuDiv);
             });
 
             restaurantDiv.appendChild(detailsDiv);
             container.appendChild(restaurantDiv);
         });
+
+        function editMenu(menuId) {
+            console.log('Edit menu:', menuId);
+        }
+
+        function deleteMenu(menuId) {
+            console.log(menuId)
+            fetch("{% url 'delete_menu' %}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": "{{ csrf_token }}",
+                },
+                body: JSON.stringify({
+                    "menu_id": menuId 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data.message); 
+                // Auto refresh page?
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
     </script>
 
     <footer class="footer">

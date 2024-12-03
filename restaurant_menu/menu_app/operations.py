@@ -1,4 +1,4 @@
-from django.db.models import Prefetch
+from django.db.models import Prefetch, Avg
 from .models import (
     Restaurants,
     Menus,
@@ -11,10 +11,13 @@ from .models import (
 )
 from django.db import *
 from django.db import transaction
+import json
 
 
 
 class MenuService:
+    # Since this is only for single inserts (no bulk operations) no need for using update. 
+    # .save() method instead
     @staticmethod
     def get_or_create_restaurant(restaurant_data):
         """Gets or creates a restaurant entry."""
@@ -27,15 +30,22 @@ class MenuService:
             }
         )
         if not created:
-            if restaurant_data.get('address'):
+            updated = False
+            if restaurant_data.get('address') and restaurant_data['address'] != restaurant.address:
                 restaurant.address = restaurant_data['address']
-            if restaurant_data.get('phone_number'):
+                updated = True
+            if restaurant_data.get('phone_number') and restaurant_data['phone_number'] != restaurant.phone_number:
                 restaurant.phone_number = restaurant_data['phone_number']
-            if restaurant_data.get('email'):
+                updated = True
+            if restaurant_data.get('email') and restaurant_data['email'] != restaurant.email:
                 restaurant.email = restaurant_data['email']
-            if restaurant_data.get('website'):
+                updated = True
+            if restaurant_data.get('website') and restaurant_data['website'] != restaurant.website:
                 restaurant.website = restaurant_data['website']
-            restaurant.save() #Although inefficient for bulk operations, neccecesary because we can't use update method
+                updated = True
+            if updated:
+                restaurant.save()
+                #Maximize efficiency by only writing to DB if changes have been made  
         return restaurant
 
     @staticmethod
@@ -108,7 +118,7 @@ class MenuService:
     @staticmethod
 
 # Version number auto-incremenet broken?
-    def upload_full_menu(restaurant_data, menu_data):
+    def upload_full_menu(restaurant_data, menu_data, errors):
         """
         Uploads a complete menu following the defined model structure.
         Parameters:
@@ -138,90 +148,107 @@ class MenuService:
         # }
 
 
-        # ------------------------------------------ERROR OPTIONS--------------------------------------------
-        # menu_data = {
-        #     "description": <description>, 
-        #     "Error Message": e
-        # }
-
+        # ------------------------------------------Full Page ERROR OPTION-----------------------------------------
         # # menu_data = {
         #     "description": <description>, 
-        #     "sections": [{
-                # "Error Message: f"Page number {page + 1} could not be parsed for menu data. It most likley did not have any menu content."
-            #  }]
+        #     "sections": []
         # }
-        # # menu_data = {
-        #     "description": <description>, 
-        #     "sections": [{
-                # "Error Message: f"Error in page number {page}: {self.errorMsg}."
-            #  }]
-        # }
-
 
         print(f"Menu Data Received:\n{menu_data}")
         print(f"Restaurant Data Received: \n{restaurant_data}")
+        print(f"Erros Received: \n{errors}")
+
         
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
         
         # Get or create the restaurant
-        restaurant = MenuService.get_or_create_restaurant(restaurant_data)
-        restaurant_id = restaurant.restaurant_id
+        with transaction.atomic():
+            restaurant = MenuService.get_or_create_restaurant(restaurant_data)
+            restaurant_id = restaurant.restaurant_id
 
-        menu = MenuService.create_menu(restaurant_id, menu_data.get("description"))
-        menu_id = menu.menu_id
+            menu = MenuService.create_menu(restaurant_id, menu_data.get("description"))
+            menu_id = menu.menu_id
 
-        # Find current version number for restuarnt, if it exists
-        menu_version = MenuService.create_menu_version(menu_id, menu.description)
-        menu_version.save() #Is this right???? Or is accessing version_number before its saved what's breaking the save method?
-        # version_number = menu_version.version_number
+            # Find current version number for restuarnt, if it exists; fix to point to restuarant
+            menu_version = MenuService.create_menu_version(menu_id, menu.description)
+
+            # Indicates no data was collected for file, other than what the user specified in the form
+            if errors.get('file_wide'):
+                log = MenuService.create_processing_log(menu_version.version_id, "Failed", errors.get('file_wide'))
+                return False #Only partial data
+
+            print("Base data uploaded.")
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
-
-        completeSuccess = True
-        sectionErrors = []
-
-        sections = menu_data.get("sections", [])
-        if sections is not None:
-
-            # Checking for any of the possible error messages
-            for i, sectionVar in enumerate(sections):
-                if sectionVar.get("section_name") is not None:
-                    section = MenuService.get_or_create_menu_section(menu_id, sectionVar.get("section_name")) #Include description later?
-                    for menuItemVar in sectionVar.get("menu_items"):
-                        menuItem = MenuService.create_menu_item(section.section_id, menuItemVar.get("menu_item"), menuItemVar.get("description"), menuItemVar.get("price"))
-
-                        if menuItemVar.get("dietary_restiction") is not None:
-                            try:
-                                dietRestriction = MenuService.get_or_create_dietary_restriction(restaurant_id, menuItemVar.get("dietary_restriction"))
-                                itemRestriction = MenuService.create_menu_item_restriction(menuItem.item_id, dietRestriction.restriction_id)
-                            except IntegrityError as e:
-                                print(f"Constraint violation in Menu_Items_Dietary_Restrictions: {e}")
-                                log = MenuService.create_processing_log(menu_version.version_id, "Fail", f"Constraint violation in Menu_Items_Dietary_Restrictions: {e}")
-                                return False #Unrecovable error; DB operation rollsback
-                            
-                else:
-                    # SECOND ERROR MESSAGE; Section specific error; save section numbers and add to logs after
-                    print("SECOND ERROR MESSAGE\n\n\n")
-                    sectionErrors.append((i+1, sectionVar.get("Error Message")))
-                    completeSuccess = False
         
-        else:
-            # FIRST ERROR MESSAGE; Complete failure, only restuarant data uploaded + menus + menu_versions
-            print("FIRST ERROR MESSAGE")
-            log = MenuService.create_processing_log(menu_version.version_id, "Fail", menu_data.get("Error Message"))
-            completeSuccess = False
-            return completeSuccess
+        sections = menu_data.get("sections", [])
+        try:
+            with transaction.atomic():
+                # section_objects = []
+                menu_items = []
+                dietary_restrictions = []
+                item_restrictions = []
+                logs = []
 
-        sectionNums = ""
-        for error in sectionErrors:
-            sectionNums += str(error[0]) + ", "
-            sectionErr = sectionErrors[0][1] #Just return the first error message received; otherwise too long
-        if len(sectionErrors) >= 1:
-            log = MenuService.create_processing_log(menu_version.version_id, "Partial Fail", f"Errors in sections {sectionNums}: {sectionErr}")
-        else:
-            log = MenuService.create_processing_log(menu_version.version_id, "Success")
+                for section_data in sections:
+                    section_name = section_data.get('section_name')
+                    if not section_name:
+                        continue
+                    
+                    section_save = transaction.savepoint()
+                    try:
+                        # section = MenuSections(menu_id=menu_id, name=section_name) 
+                        section = MenuService.get_or_create_menu_section(menu_id, section_name) #Description add
+                        # section_objects.append(section)
 
-        return completeSuccess #Var to denote if partial fail or complete success
+                        for item_data in section_data.get('menu_items', []):
+                            menu_item = MenuItems(
+                                section=section,
+                                name=item_data.get("menu_item"),
+                                description=item_data.get("description"),
+                                price=item_data.get("price"),
+                            )
+                            menu_items.append(menu_item)
 
+                            dietary_restriction_name = item_data.get("dietary_restriction")
+                            if dietary_restriction_name:
+                                restriction_save = transaction.savepoint()
+                                try:
+                                    diet_restriction = DietaryRestrictions(restaurant=restaurant, name=dietary_restriction_name)
+                                    dietary_restrictions.append(diet_restriction)
+                                    item_restrictions.append(MenuItemDietaryRestrictions(item=menu_item, restriction=diet_restriction))
+                                except IntegrityError as e:
+                                    print(f"Constraint violation: {e}")
+                                    log = MenuProcessingLogs(version=menu_version, status="Partial Fail", error_message="An error occured while uploading dietary restrictions to DB, but everything else was saved.")
+                                    logs.append(log)
+                                    menu_items.pop()
+                                    dietary_restrictions.pop()
+                                    item_restrictions.pop()
+                                    transaction.savepoint_rollback(restriction_save)
+                                    # Only undo this item's dietary restriction actions, in case the error is item specific
+
+                                else:
+                                    transaction.savepoint_commit(restriction_save)
+
+                    except Exception as e:
+                        print(f"Error processing section: {section_name}")
+                        log = MenuProcessingLogs(version=menu_version, status="Partial Fail", error_message="An error occured while uploading a section, but everything else was saved.")
+                        logs.append(log)
+                        continue
+                        # section_objects.pop()
+                        # transaction.savepoint_rollback(section_save)
+                        # Only undo this sections actions, in case the error is section specific
+
+                # MenuSections.objects.bulk_create(section_objects)
+                MenuItems.objects.bulk_create(menu_items)
+                DietaryRestrictions.objects.bulk_create(dietary_restrictions)
+                MenuItemDietaryRestrictions.objects.bulk_create(item_restrictions)
+                MenuProcessingLogs.objects.bulk_create(logs)
+
+            return True
+        except Exception as e:
+            print(f"Error processing menu data: {e}")
+            MenuService.create_processing_log(menu_version.version_id, "Partial Fail", "An unexpected error occured while uploading to DB but your general menu and restuarant info were saved.")
+            return False
 
     @staticmethod
     # For autofill functionality in forms.py
@@ -237,38 +264,73 @@ class MenuService:
             for restaurant in restaurants
         }
 
-# menu_data_test = [
-#     {
-#         "id": 1,
-#         "name": "Restaurant A",
-#         "created_at": "2024-12-01",
-#         "menus": [
-#             {
-#                 "version_id": 101,
-#                 "created_at": "2024-12-01T10:00:00",
-#                 "description": "Main menu",
-#                 "status": "Successful"
-#             },
-#             {
-#                 "version_id": 102,
-#                 "created_at": "2024-11-25T15:30:00",
-#                 "description": "Holiday menu",
-#                 "status": "Failed"
-#             }
-#         ]
-#     },
-#     {
-#         "id": 2,
-#         "name": "Restaurant B",
-#         "created_at": "2024-11-20",
-#         "menus": []
-#     }
-# ]
+    # efficient
+
 
     def get_initial_data():
+        # Prefetch related menus and their menu versions and logs
+        restaurants = (
+            Restaurants.objects.prefetch_related(
+                Prefetch(
+                    'menus',
+                    queryset=Menus.objects.prefetch_related(
+                        Prefetch(
+                            'versions',
+                            queryset=Menu_Versions.objects.prefetch_related(
+                                Prefetch(
+                                    'processing_logs',
+                                    queryset=MenuProcessingLogs.objects.all(),
+                                    to_attr='log_list'  # Store logs in a custom attribute
+                                )
+                            ).order_by('-created_at'),  # Order versions by creation time
+                            to_attr='version_list'  # Store versions in a custom attribute
+                        )
+                    ),
+                    to_attr='menu_list'  # Store menus in a custom attribute
+                )
+            )
+        )
+
+        restaurant_data = []
+
+        for restaurant in restaurants:
+            menu_list = []
+            for menu in restaurant.menu_list:  # Access preloaded menus
+                for version in menu.version_list:  # Access preloaded versions
+                    # Fetch the first log if it exists
+                    log = version.log_list[0] if version.log_list else None
+                    status = log.status if log else "Unknown"
+                    error_message = log.error_message if log else ""
+
+                    # Append version data to menu list
+                    menu_list.append({
+                        "menu_id": version.menu_id,
+                        "created_at": version.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
+                        "description": version.description,
+                        "status": status,
+                        "error_message": error_message,
+                    })
+
+            # Append restaurant data to final structure
+            restaurant_data.append({
+                "id": restaurant.restaurant_id,
+                "name": restaurant.name,
+                "address": restaurant.address or "",
+                "phone_number": restaurant.phone_number or "",
+                "email": restaurant.email or "",
+                "website": restaurant.website or "",
+                "created_at": restaurant.created_at.strftime("%Y-%m-%d"),
+                "menus": menu_list,
+            })
+
+        print(f"Restaurant Data: \n{restaurant_data}")
+        return restaurant_data
+
+
+    def get_old_initial_data():
 
         restaurants = Restaurants.objects.all()
-        menu_data = []
+        restaurant_data = []
 
         for restaurant in restaurants:
             # Get menus for this restaurant
@@ -286,25 +348,92 @@ class MenuService:
 
                     # Append version data to menu list
                     menu_list.append({
-                        "version_id": version.version_id,
+                        "menu_id": version.menu_id,
                         "created_at": version.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
                         "description": version.description,
-                        "status": status,
-                        "error_message": error_message,
+                        "status": status if not None else "",
+                        "error_message": error_message if not None else "",
                     })
 
             # Append restaurant data to final structure
-            menu_data.append({
+            restaurant_data.append({
                 "id": restaurant.restaurant_id,
                 "name": restaurant.name,
+                "address": restaurant.address if not None else "",
+                "phone_number": restaurant.phone_number if not None else "",
+                "email": restaurant.email if not None else "",
+                "website": restaurant.website if not None else "",
                 "created_at": restaurant.created_at.strftime("%Y-%m-%d"),
                 "menus": menu_list,
             })
-        print(f"Menu Data: \n{menu_data}")
+        print(f"Menu Data: \n{restaurant_data}")
 
-        return menu_data
+        return restaurant_data
     
+    # Done
+    def delete_menu(menu_id):
+        try:
+            with transaction.atomic():
+                Menus.objects.filter(menu_id=menu_id).delete()
+                # Cascading deletes turned on
+            return True
+        except Exception as e:
+            print(f"Error deleting menu with ID {menu_id}: {e}")
+            return False
+
+    def get_menu_data(menu_id):
+        menu = (
+            Menus.objects.filter(menu_id=menu_id)
+            .prefetch_related('sections', 'versions', 'sections__items', 'versions__processing_logs')
+        )
+        if not menu.exists():
+            return {}
+        menu_data = menu.first()
+        print(f"Menu data: {menu_data}")
+        version = menu_data.versions.first()
+
+        menu_json = {
+            "version_number": version.version_number,
+            "created_at": menu_data.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
+            "status": None,
+            "error_message": "",
+            "description": menu_data.description,
+            "sections": [],
+        }
+
+        if version.processing_logs.exists():
+            log = version.processing_logs.first()
+            menu_json["status"] = log.status
+            menu_json["error_message"] = log.error_message if log.error_message else ""
+
+        # Fetch the sections and calculate average price per section
+        for section in menu_data.sections.all():
+            section_data = {
+                "section_name": section.name,
+                "menu_items": [],
+                "avg_section_price": round(float(section.items.aggregate(Avg('price'))['price__avg'] or 0), 2),  # Calculate average price for items in this section
+            }
+
+            # Add the menu items for this section
+            for menu_item in section.items.all():
+                restrict = ""
+                if menu_item.menuitemdietaryrestrictions_set.exists():
+                    restriction = menu_item.menuitemdietaryrestrictions_set.first()
+                    dietaryRestriction = restriction.dietaryrestrictions_set.first()
+                    restrict = dietaryRestriction.name
+                section_data["menu_items"].append({
+                    "menu_item": menu_item.name,
+                    "price": float(menu_item.price),
+                    "dietary_restriction": restrict,
+                    "description": menu_item.description
+                })
 
 
+            # Append the section data to the menu_json object
+            menu_json["sections"].append(section_data)
 
+        all_prices = [item['avg_section_price'] for item in menu_json["sections"] if item['avg_section_price'] is not None]
+        menu_json["avg_menu_price"] = sum(all_prices) / len(all_prices) if all_prices else 0
+
+        return menu_json
 

@@ -16,7 +16,14 @@ class PdfParse:
     def __init__(self, file, menuDescription):
         self.pdf = file
         self.menuDescription = menuDescription
-        self.errorMsg = None
+        
+        # Global error messages to be used for logs
+        self.errorMessages = {
+            'pages': [],
+            'file_wide': [],
+        }
+        # Denotes a page wide error
+        self.errorMsg = False
         self.key = settings.API_KEY
         
     def toImg(self):
@@ -27,7 +34,7 @@ class PdfParse:
         try:
             with pdfplumber.open(self.pdf) as pdf:
                 for i, page in enumerate(pdf.pages):
-                    self.errorMsg = None
+                    self.errorMsg = False
                     pilImage = page.to_image(resolution=300).original #In PIL format; need base64
 
                     buffer = BytesIO()
@@ -39,32 +46,25 @@ class PdfParse:
                     print(f"Binary image created for page {i + 1}")
 
                     response = self.genResponse(b64Image, i+1)
-                    if self.errorMsg is None:
+                    if not self.errorMsg:
                         responses.append((True, response))
-                    else: #If an error message was created for this page, handle response gracefully
-                        responses.append((False, ""))
-                    print(f"Response from OpenAI: {responses[i]}")
+                    else: #If an error message was created for this page, stop operating for the page.
+                        print(f"Response from OpenAI: page error")
+                        break
+                    print(f"Response from OpenAI: {response}")
                 
                 for page, response in enumerate(responses):
-                    if response[0] is not False:
-                        if isinstance(response[1][0], dict):
-                            page_data = response[1]
-
-                        else:
-                            page_data = [{"Error Message": f"Error in page number {page}: Could not be parsed for menu data. It most likley did not have any menu content."}]
-
-                    else:
-                        page_data = [{"Error Message": f"Error in page number {page}: {self.errorMsg}."}]
+                    if isinstance(response[1][0], dict): #OpenAI provided a valid json object
+                        page_data = response[1]
 
                     print(f"Page_data: \n{page_data}")
                     returnJson['sections'].extend(page_data) #Appending list of JSON objects to sections, a field whose value is a list.
-                return (True, returnJson)
+                return (True, returnJson, self.errorMessages)
 
         except Exception as e:
+            self.errorMessages['file_wide'].append({'error_message': f'Unexpected error occured while converting PDF to image: {e}'})
             print(f"Error converting to image: {e}")
-            return (False, json.dumps({"description": self.menuDescription,
-                "Error Message": f"Error converting PDF to image: {e}"
-            }))
+            return (False, "", self.errorMessages)
 
 
     def genResponse(self, img, page):
@@ -110,8 +110,9 @@ class PdfParse:
             )
             choice = response.choices[0]
             if isinstance(choice, bool):
-                self.errorMsg = f"Failed to parse JSON content for page number {page}."
-                print(f"Failed to parse JSON content: {json_content}")
+                self.errorMessages['pages'].append({'page': page, 'error_message': 'Failed to parse JSON content. It most likley did not have any menu content.'})
+                self.errorMsg = True
+                print(f"Failed to parse JSON content: {page}")
                 return  
             elif hasattr(choice, 'message') and choice.message:
                 content = choice.message.content
@@ -125,20 +126,24 @@ class PdfParse:
                         parsed_content = json.loads(json_content)  # Parse the JSON content
                         return parsed_content
                     except json.JSONDecodeError:
-                        self.errorMsg = f"Failed to parse JSON content for page number {page}."
-                        print(f"Failed to parse JSON content: {json_content}")
+                        self.errorMessages['pages'].append({'page': page, 'error_message': 'JSON Decode Error. Failed to parse JSON content'})
+                        self.errorMsg = True
+                        print(f"Failed to parse JSON content: {page}")
                         return
                 else:
-                    self.errorMsg = f"No JSON block found in content for page number {page}."
-                    print(f"No JSON block found in content: {content}")
+                    self.errorMessages['pages'].append({'page': page, 'error_message': 'No JSON block found in API response.'})
+                    self.errorMsg = True
+                    print(f"No JSON block found in content: {page}")
                     return
 
             # Fallback in case no valid response
-            self.errorMsg = f"No valid message content in page number {page}."
+            self.errorMessages['pages'].append({'page': page, 'error_message': '"No valid message content received from API.'})
+            self.errorMsg = True
             print(f"No valid message content in page number {page}.")
             return
 
         except Exception as e:
-            self.errorMsg = f"Error in page number {page}: {e}"
+            self.errorMessages['pages'].append({'page': page, 'error_message': f'An unexpected exception occured: {e}'})
+            self.errorMsg = True
             print(f"Error in page number {page}: {e}")
             return

@@ -20,7 +20,6 @@ def home(request):
 def about(request):
     return render(request, "menu_app/about.html")
 
-
 def handle_pdf_upload(request):
     data = MenuService.get_all_restaurant_data()
     if request.method == 'POST':
@@ -34,9 +33,9 @@ def handle_pdf_upload(request):
             print(f"Form is clean!: {restaurantInfo}")
 
             parse = PdfParse(pdf_file, menuName)
-            status, response = parse.toImg()
+            status, response, errors = parse.toImg()
             if status:
-                DB = MenuService.upload_full_menu(restaurantInfo, response)
+                DB = MenuService.upload_full_menu(restaurantInfo, response, errors)
                 print(f"DB: {DB}")
             else: #Clean up...
                 return JsonResponse({'message': 'PDF processing unsuccessful. No DB operations done.', 'error_message': ''})
@@ -56,4 +55,23 @@ def view_uploads(request):
         # Base case; render file initially
         data = MenuService.get_initial_data()
         return render(request, 'menu_app/view.html', {'menu_data': data})
+
+def delete_menu(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            menu_id = data.get('menu_id')
+            delete = MenuService.delete_menu(menu_id)
+            if delete:
+                output = {"message": "Menu deleted successfully!"}
+            else:
+                output = {"message": "Could not delete menu."}
+
+            return JsonResponse(output)
+        except json.JSONDecodeError:
+            return JsonResponse({"message": "Invalid JSON"}, status=400)
+    return JsonResponse({"message": "Invalid request method."}, status=400)
+
+def inspect_menu(request, menu_id):
+    return render(request, 'menu_app/menu_inspect.html', {'menu_id': menu_id})
 

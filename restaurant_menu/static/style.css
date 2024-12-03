@@ -260,6 +260,9 @@ legend {
       margin-top: 10px;
   }
   .menu-version {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       border: 1px solid #ddd;
       padding: 10px;
       margin-bottom: 5px;
@@ -269,6 +272,17 @@ legend {
   }
   .menu-version:hover {
       background-color: #eaeaea;
+  }
+  button.delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  button.delete:hover {
+    opacity: 0.8;
   }
 /* -------------------------------------------------------VIEW.HTML--------------------------------------------------------------------- */
 /* -------------------------------------------------------ABOUT.HTML--------------------------------------------------------------------- */
