@@ -26,6 +26,16 @@ class MenuService:
                 "website": restaurant_data.get('website')
             }
         )
+        if not created:
+            if restaurant_data.get('address'):
+                restaurant.address = restaurant_data['address']
+            if restaurant_data.get('phone_number'):
+                restaurant.phone_number = restaurant_data['phone_number']
+            if restaurant_data.get('email'):
+                restaurant.email = restaurant_data['email']
+            if restaurant_data.get('website'):
+                restaurant.website = restaurant_data['website']
+            restaurant.save() #Although inefficient for bulk operations, neccecesary because we can't use update method
         return restaurant
 
     @staticmethod
