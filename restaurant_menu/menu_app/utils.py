@@ -13,14 +13,14 @@ from django.conf import settings
 
 # NO PARSE; JUST UPLOAD IMG TO GBT
 class PdfParse:
-    def __init__(self, file, menuName):
+    def __init__(self, file, menuDescription):
         self.pdf = file
-        self.menuName = menuName
+        self.menuDescription = menuDescription
         self.errorMsg = None
         self.key = settings.API_KEY
         
     def toImg(self):
-        returnJson = {"description": self.menuName,
+        returnJson = {"description": self.menuDescription,
                 "sections": []
             }
         responses = []
@@ -62,8 +62,8 @@ class PdfParse:
 
         except Exception as e:
             print(f"Error converting to image: {e}")
-            return (False, json.dumps({"description": self.menuName,
-                "Error Message": f"{e}"
+            return (False, json.dumps({"description": self.menuDescription,
+                "Error Message": f"Error converting PDF to image: {e}"
             }))
 
 
@@ -79,8 +79,24 @@ class PdfParse:
                             {
                                 "type": "text",
                                 "text": 
-                                """You are analyzing a menu that I need to turn into structured data. Provide a JSON object with these fields: 'section_name', 'menu_item', 'price', 'dietary_restriction', and 'description'. If you can't determine a field ensure its a valid JSON placeholden like 'null', except for sections. If you can't figure out a section name simply write down its section number (in the order that you reach it). Most importantly, I need the relationships to be accurate, so even if you can't find the section name of something ensure the relationships are correct, for example, still make sure that the correct menu_items are children of that unamed section. However, try and be more liberal when it comes to naming sections. You can assume a section based off of the menu_items it contains, as long as you DONT REPEAT SECTION NAMES. Also try and be a little more liberal for dietary restrictions, if its clear that a menu_item only has veggies for example then you can denote it as such, just make sure to use actual dietary restriction names (gluten-free, vegan, vegetarian, peanut-free, etc.). It also seems that you tend to interpret calories (cal.) as price, prices are always standalone digits or are preceded/followed by a currency symbol. ONLY RETURN VALID JSON, and always just return an array of JSON objects starting with section_name. 
-                                This is a sample of an expected output, note that I will be appending the output to the "sections" field, I just want an array of json objects denoting each section and its respective menu_items: "sections": [{"section_name": <section_name>, "menu_items": [ {"menu_item": "Cheesy Double Decker Taco", "price": null, "dietary_restriction": null, "description": null}, ...]. Lastly, and this is very important, if you determine that the image is not a menu (or you simply are unable to parse any of it), ONLY return False as your first choice, not in JSON format. This is important.""",
+                                """You are analyzing a menu that I need to turn into structured data. Provide a JSON object with these fields: 'section_name', 'menu_item', 'price', 'dietary_restriction', and 'description'. 
+                                If you can't determine a field ensure its a valid JSON placeholden like 'null', except for sections. 
+                                If you can't figure out a section name simply write down its section number (in the order that you reach it), but try and be more liberal when it comes to naming sections and infer only when you're confident. 
+                                Most importantly, I need the relationships to be accurate, so even if you can't find the section name of something ensure the relationships are correct, for example, still make sure that the correct menu_items are children of that unamed section. 
+                                You can assume a section based off of the menu_items it contains, as long as you DONT REPEAT SECTION NAMES. Also try and be a little more liberal for dietary restrictions, if its clear that a menu_item only has veggies for example then you can denote it as such, just make sure to use actual dietary restriction names (gluten-free, vegan, vegetarian, peanut-free, etc.). 
+                                It also seems that you tend to interpret calories (cal.) as price, prices are always standalone digits or are preceded/followed by a currency symbol. ONLY RETURN VALID JSON, and always just return an array of JSON objects starting with section_name. 
+                                This is a sample of an expected output, note that I will be appending the output to the "sections" field, I just want an array of json objects denoting each section and its respective menu_items: 
+                                [
+                                    {
+                                    "section_name": <section_name>, 
+                                    "menu_items": [ {
+                                        "menu_item": "Cheesy Double Decker Taco", 
+                                        "price": null, 
+                                        "dietary_restriction": null, 
+                                        "description": null}, ...].
+                                    }, ...
+                                ]     
+                                Lastly, and this is very important, if you determine that the image is not a menu (or you simply are unable to parse any of it), ONLY return False as your first choice, not in JSON format. This is very important.""",
                             },
                             {
                                 "type": "image_url",

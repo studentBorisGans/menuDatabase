@@ -1,57 +1,49 @@
+import json
+
 from django import forms
 from PyPDF2 import PdfReader
+from .models import Restaurants
 
 class PDFUploadForm(forms.Form):
-    # Restaurnt INFO
-    name = forms.CharField(max_length=100, required=True, label="Restaurant Name")
-    address = forms.CharField(max_length=200, required=False, label="Restaurant Address")
+    # restaurant_name = forms.ChoiceField(
+    #     max_length=100,
+    #     required=True,
+    #     label="Select or Create Restaurant",
+    # )
+
+    # # Text field for creating a new entry (hidden by default, revealed by JS)
+    # new_restaurant_name = forms.CharField(
+    #     max_length=100,
+    #     required=False,  # This field is optional
+    #     label="New Restaurant Name",
+    # )
+
+
+    # address = forms.CharField(max_length=200, required=False, label="Address")
+    # phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
+    # email = forms.EmailField(required=False, label="Email Address")
+    # website = forms.URLField(required=False, label="Website URL")
+
+    restaurant_name = forms.CharField(max_length=100, required=True, label="Restaurant Name")
+    address = forms.CharField(max_length=200, required=False, label="Address")
     phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
-    email = forms.EmailField(required=False, label="Email Address")
-    website = forms.URLField(required=False, label="Website URL")
-
-    menu_name = forms.CharField(max_length=100, required=True, label="Menu Name")
-    pdf_file = forms.FileField()
-
-    # restaurant_data = {
-        #     "name": <name>,
-        #     "address": <address>, nullable
-        #     "phone_number": <phone_number>, nullable
-        #     "email": <email>, nullable
-        #     "website": <website>, nullable
-        # }
+    email = forms.EmailField(required=False, label="Email")
+    website = forms.URLField(required=False, label="Website")
+    menu_description = forms.CharField(max_length=100, required=True, label="Menu Description")
+    pdf_file = forms.FileField(required=True, label="Upload PDF")
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cleaned_file = None
+        # self.cleaned_file = None
         self.error_message = None
-        self.restaurnt_info = None
 
-    def is_valid(self):
-        print("Validating document...")
-        valid = super().is_valid()
-        print(f"Validity: {valid}")
-
-        if valid:
-            try:
-                self.cleaned_file = self.clean_pdf()
-                print(f"Cleaned file in is_valid: {self.cleaned_file}")
-                return True
-            except forms.ValidationError as e:
-                self.error_message = e
-                self.add_error('pdf_file', e)
-            print("Error in PDF Upload Form is_valid")
-            return False
-
-    def clean_pdf(self):
+    def clean_pdf_file(self):
         print("Cleaning...")
         file = self.cleaned_data.get('pdf_file')
         if not file.name.endswith('.pdf'):
             print("NO PDF")
             self.error_message = "Only PDF files are allowed."
             raise forms.ValidationError("Only PDF files are allowed.")
-        if self.cleaned_data.get('menu_name') is " ":
-            self.error_message = "Please enter a name for the menu."
-            raise forms.ValidationError("Please enter a name for the menu.")
         
         try:
             reader = PdfReader(file)
@@ -64,20 +56,53 @@ class PDFUploadForm(forms.Form):
 
         return file
     
+    def clean(self):
+        cleaned_data = super().clean()
+        menu_description = cleaned_data.get('menu_description')
+
+        if not menu_description:
+            raise forms.ValidationError("Please enter a description for the menu.")
+
+        return cleaned_data
+
+    def is_valid(self):
+        print("Validating document...")
+        valid = super().is_valid()
+        print(f"Validity: {valid}")
+
+        if not valid:
+            print("Django could not validate form.")
+            return False
+        
+        try:
+            self.cleaned_file = self.cleaned_data.get('pdf_file')
+            print(f"Cleaned file in is_valid: {self.cleaned_file}")
+            return True
+        except forms.ValidationError as e:
+            self.error_message = e
+            self.add_error('pdf_file', e)
+
+        print("Error in custom form validation.")
+        return False
+    
     def return_cleaned_file(self):
         return self.cleaned_file
     
     def return_menu_name(self):
-        return self.cleaned_data.get('menu_name')
+        return self.cleaned_data.get('menu_description')
     
     def return_error_message(self):
         return self.error_message 
     
     def return_restaurant_info(self):
+        if not self.is_valid():
+            print("Form errors:", self.errors)
+            return None
         return {
-            "name": self.cleaned_data.get("name"),
+            "name": self.cleaned_data.get("restaurant_name"),
             "address": self.cleaned_data.get("address"),
             "phone_number": self.cleaned_data.get("phone_number"),
             "email":self.cleaned_data.get("email"),
-            "website":self.cleaned_data.get("website")
+            "website":self.cleaned_data.get("website"),
         }
+    

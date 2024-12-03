@@ -197,6 +197,35 @@ footer {
   padding: 20px; /* Optional: Add padding around the content */
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+
+form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 10px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+
 #uploadButton {
   margin-top: 10px; /* Add space above the button */
   padding: 10px 20px; /* Add padding to make the button larger */

@@ -22,6 +22,7 @@ def about(request):
 
 
 def handle_pdf_upload(request):
+    data = MenuService.get_all_restaurant_data()
     if request.method == 'POST':
         form = PDFUploadForm(request.POST, request.FILES)
 
@@ -32,20 +33,20 @@ def handle_pdf_upload(request):
             print(f"Form is clean!: {pdf_file}")
             print(f"Form is clean!: {restaurantInfo}")
 
-
             parse = PdfParse(pdf_file, menuName)
             status, response = parse.toImg()
             if status:
                 DB = MenuService.upload_full_menu(restaurantInfo, response)
                 print(f"DB: {DB}")
-            else:
+            else: #Clean up...
                 return JsonResponse({'message': 'PDF processing unsuccessful. No DB operations done.', 'error_message': ''})
-            return JsonResponse({'message': 'PDF processing successful.', 'DB Operation': DB, 'error_message': ''})
+            return JsonResponse({'message': 'PDF processing successful.', 'restaurant_data': data, 'DB Operation': DB, 'error_message': ''})
         else:
-            return JsonResponse({'message': '', 'error_message': form.return_error_message}, status=400)
-    # else:
+            return JsonResponse({'message': 'Invalid form submission', 'restaurant_data': data, 'error_message': form.return_error_message}, status=400)
+        
     form = PDFUploadForm()
-    return render(request, 'menu_app/upload.html', {'form': form})
+    return render(request, 'menu_app/upload.html', {'form': form, 'restaurant_data': data})
+# add restuarant data.
 
 def view_uploads(request):
     if request.method == 'POST':

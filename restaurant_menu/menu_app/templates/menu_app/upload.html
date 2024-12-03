@@ -6,12 +6,22 @@
     <title>Upload PDF</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
+    {{ restaurant_data|json_script:"restaurant_data" }}
     <script>
+        const restaurantData = JSON.parse(document.getElementById('restaurant_data').textContent);
+        console.log(restaurantData)
+
         async function uploadPDF(event) {
             event.preventDefault();  // Prevent the default form submission
 
             const form = document.querySelector('form');
             const formData = new FormData(form);
+            if (formData.get('restaurant_name') === "") {
+                const newRestaurantName = formData.get('new_restaurant_name')
+
+                formData.set('restaurant_name', newRestaurantName);
+            }
+
 
             try {
                 // Send the form data to the server
@@ -19,7 +29,7 @@
                     method: "POST",
                     body: formData,
                     headers: {
-                        "X-CSRFToken": "{{ csrf_token }}",  // Include CSRF token
+                        "X-CSRFToken": "{{ csrf_token }}",
                     },
                 });
 
@@ -30,12 +40,11 @@
                 }
 
                 const data = await response.json();
+                console.log("Server Response: ", result)
+                alert("PDF uploaded successfully!");
+
                 document.getElementById('message').innerText = data.message;
                 document.getElementById('output').innerText = data.output;
-
-                // renderJson(data.output);
-                // document.getElementById('output').innerText = data.output;
-
             } catch (error) {
                 console.error("Error uploading PDF:", error);
                 document.getElementById('error_message').innerText = "An unexpected error occurred.";
@@ -62,14 +71,52 @@
 
         <p id="error_message" style="color:red;"></p>
         <p id="message" style="color:green;"></p>
-        <!-- Additional parameters:
-                Restuarant info: restuarant name, (OPTIONAL): address, phone_number, email, and website 
-                Menu info: 'description' (change to name; leave other stuff), description of menu entry
-        -->
 
         <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
             {% csrf_token %}
-            {{ form.as_p }}
+
+            <fieldset>
+                <legend>Required Information</legend>
+                <div>
+                    <label for="restaurant_name">Select or Create Restaurant</label>
+                    <select id="restaurant_name" name="restaurant_name">
+                        <option value="">Create a new entry</option>
+                    </select>
+                </div>
+        
+                <div class="form-group" id="new-restaurant-container" style="display: block;">
+                    <label for="new_restaurant_name">New Restaurant Name</label>
+                    <input type="text" id="new_restaurant_name" name="new_restaurant_name">
+                </div>
+                <div class="form-group">
+                    <label for="menu_description">Menu Description</label>
+                    <input type="text" id="menu_description" name="menu_description" required>
+                </div>
+                <div class="form-group">
+                    <label for="pdf_file">Upload Menu PDF</label>
+                    <input type="file" id="pdf_file" name="pdf_file" required>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Optional Details</legend>
+                <div class="form-group">
+                    <label for="address">Restaurant Address</label>
+                    <input type="text" id="address" name="address">
+                </div>
+                <div class="form-group">
+                    <label for="phone_number">Phone Number</label>
+                    <input type="text" id="phone_number" name="phone_number">
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="website">Website URL</label>
+                    <input type="url" id="website" name="website">
+                </div>
+            </fieldset>
+            
             <button type="submit" id="uploadButton">Upload</button>
         </form>
 
@@ -90,4 +137,44 @@
         </div>
     </footer>
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+        console.log(restaurantData)
+
+        const restaurantSelect = document.getElementById('restaurant_name');
+        const newRestaurantContainer = document.getElementById('new-restaurant-container');
+        const addressField = document.getElementById("address");
+        const phoneNumberField = document.getElementById("phone_number");
+        const emailField = document.getElementById("email");
+        const websiteField = document.getElementById("website");
+        
+
+        Object.keys(restaurantData).forEach((restaurantName) => {
+            const option = document.createElement("option");
+            option.value = restaurantName;
+            option.textContent = restaurantName;
+            restaurantSelect.appendChild(option);
+        });
+
+        restaurantSelect.addEventListener('change', function () {
+            const selectedRestaurant = restaurantSelect.value;
+            if (restaurantSelect.value === "") {
+                newRestaurantContainer.style.display = "block";
+                addressField.value = "";
+                phoneNumberField.value = "";
+                emailField.value = "";
+                websiteField.value = "";
+            } else {
+                newRestaurantContainer.style.display = "none";
+                const data = restaurantData[selectedRestaurant] || {};
+                addressField.value = data.address || "";
+                phoneNumberField.value = data.phone_number || "";
+                emailField.value = data.email || "";
+                websiteField.value = data.website || "";
+
+            }
+        });
+    });
+</script>
 </html>

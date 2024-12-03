@@ -213,6 +213,19 @@ class MenuService:
         return completeSuccess #Var to denote if partial fail or complete success
 
 
+    @staticmethod
+    # For autofill functionality in forms.py
+    def get_all_restaurant_data():
+        restaurants = Restaurants.objects.all()
+        return {
+            restaurant.name: {
+                "address": restaurant.address or "",
+                "phone_number": restaurant.phone_number or "",
+                "email": restaurant.email or "",
+                "website": restaurant.website or ""
+            }
+            for restaurant in restaurants
+        }
 
 # menu_data_test = [
 #     {
