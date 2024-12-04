@@ -181,6 +181,7 @@ class MenuService:
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
         
         sections = menu_data.get("sections", [])
+        completeSuccess = True
         try:
             with transaction.atomic():
                 # section_objects = []
@@ -191,6 +192,7 @@ class MenuService:
 
                 for section_data in sections:
                     section_name = section_data.get('section_name')
+                    print(f"\nSection Name: {section_name}")
                     if not section_name:
                         continue
                     
@@ -201,54 +203,61 @@ class MenuService:
                         # section_objects.append(section)
 
                         for item_data in section_data.get('menu_items', []):
-                            menu_item = MenuItems(
-                                section=section,
-                                name=item_data.get("menu_item"),
-                                description=item_data.get("description"),
-                                price=item_data.get("price"),
-                            )
-                            menu_items.append(menu_item)
+                            print(f"Menu_Item: {item_data}")
 
+                            menu_item = MenuService.create_menu_item(section.section_id, item_data.get("menu_item"), item_data.get("description"), item_data.get("price"))
+                            # print(f"\nItem Name: {item_data.get("menu_item")}")
+
+                            # menu_items.append(menu_item)
+# COMPLETE SUCCESS
                             dietary_restriction_name = item_data.get("dietary_restriction")
-                            if dietary_restriction_name:
-                                restriction_save = transaction.savepoint()
+                            if dietary_restriction_name is not None:
+                                # restriction_save = transaction.savepoint()
                                 try:
                                     diet_restriction = DietaryRestrictions(restaurant=restaurant, name=dietary_restriction_name)
                                     dietary_restrictions.append(diet_restriction)
                                     item_restrictions.append(MenuItemDietaryRestrictions(item=menu_item, restriction=diet_restriction))
                                 except IntegrityError as e:
                                     print(f"Constraint violation: {e}")
+                                    completeSuccess = False
                                     log = MenuProcessingLogs(version=menu_version, status="Partial Fail", error_message="An error occured while uploading dietary restrictions to DB, but everything else was saved.")
+
                                     logs.append(log)
-                                    menu_items.pop()
                                     dietary_restrictions.pop()
                                     item_restrictions.pop()
-                                    transaction.savepoint_rollback(restriction_save)
+                                    # transaction.savepoint_rollback(restriction_save)
                                     # Only undo this item's dietary restriction actions, in case the error is item specific
 
                                 else:
-                                    transaction.savepoint_commit(restriction_save)
+                                    return
+                                    # transaction.savepoint_commit(restriction_save)
 
                     except Exception as e:
                         print(f"Error processing section: {section_name}")
-                        log = MenuProcessingLogs(version=menu_version, status="Partial Fail", error_message="An error occured while uploading a section, but everything else was saved.")
+                        log = MenuProcessingLogs(version=menu_version, status="Partial Fail", error_message=f"An error occured while uploading a section: {e}")
                         logs.append(log)
+                        transaction.savepoint_rollback(section_save)
                         continue
                         # section_objects.pop()
                         # transaction.savepoint_rollback(section_save)
                         # Only undo this sections actions, in case the error is section specific
+                    else:
+                        transaction.savepoint_commit(section_save)
 
                 # MenuSections.objects.bulk_create(section_objects)
-                MenuItems.objects.bulk_create(menu_items)
-                DietaryRestrictions.objects.bulk_create(dietary_restrictions)
-                MenuItemDietaryRestrictions.objects.bulk_create(item_restrictions)
-                MenuProcessingLogs.objects.bulk_create(logs)
+                # MenuItems.objects.bulk_create(menu_items)
+
+            DietaryRestrictions.objects.bulk_create(dietary_restrictions)
+            MenuItemDietaryRestrictions.objects.bulk_create(item_restrictions)
+            MenuProcessingLogs.objects.bulk_create(logs)
+            MenuService.create_processing_log(menu_version.version_id, "Partial Fail", "An unexpected error occured while uploading to DB but your general menu and restuarant info were saved.")
 
             return True
         except Exception as e:
             print(f"Error processing menu data: {e}")
             MenuService.create_processing_log(menu_version.version_id, "Partial Fail", "An unexpected error occured while uploading to DB but your general menu and restuarant info were saved.")
-            return False
+            raise
+            # return False
 
     @staticmethod
     # For autofill functionality in forms.py

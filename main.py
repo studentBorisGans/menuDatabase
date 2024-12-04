@@ -10,7 +10,7 @@ print(numpy.__version__)
 #   DONE: Move errors to seperate structure
 #   
 #   !!!!!REFACTOR MODELS.PY FOR BATCH UPLOADS
-
+#  
 #   !!!!!UPDATE DATABASE
 #       Menu-Verisons should point to restuarant ID not menu_id
 #       There will never be two menus with the same menu_id so its compleltey pointless right now.
