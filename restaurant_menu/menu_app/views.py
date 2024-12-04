@@ -35,13 +35,12 @@ def handle_pdf_upload(request):
             parse = PdfParse(pdf_file, menuName)
             status, response, errors = parse.toImg()
             if status:
-                DB = MenuService.upload_full_menu(restaurantInfo, response, errors)
-                print(f"DB: {DB}")
-            else: #Clean up...
-                return JsonResponse({'message': 'PDF processing unsuccessful. No DB operations done.', 'error_message': ''})
-            return JsonResponse({'message': 'PDF processing successful.', 'restaurant_data': data, 'DB Operation': DB, 'error_message': ''})
-        else:
-            return JsonResponse({'message': 'Invalid form submission', 'restaurant_data': data, 'error_message': form.return_error_message}, status=400)
+                MenuService.upload_full_menu(restaurantInfo, response, errors)
+            # else: #Clean up...
+                # return JsonResponse({'message': 'PDF processing unsuccessful. No DB operations done.', 'error_message': errors.get('file_wide')})
+            # return JsonResponse({'message': 'PDF processing successful.', 'restaurant_data': data, 'DB Operation': DB, 'error_message': ''})
+        # else:
+            # return JsonResponse({'message': 'Invalid form submission', 'restaurant_data': data, 'error_message': form.return_error_message}, status=400)
         
     form = PDFUploadForm()
     return render(request, 'menu_app/upload.html', {'form': form, 'restaurant_data': data})

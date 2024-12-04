@@ -25,7 +25,7 @@
 
             try {
                 // Send the form data to the server
-                const response = await fetch("{% url 'pdf_upload' %}", {
+                fetch("{% url 'pdf_upload' %}", {
                     method: "POST",
                     body: formData,
                     headers: {
@@ -33,21 +33,13 @@
                     },
                 });
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    document.getElementById('error_message').innerText = errorData.error_message;
-                    return;
-                }
-
-                const data = await response.json();
-                console.log("Server Response: ", data)
                 alert("PDF uploaded successfully!");
 
-                document.getElementById('message').innerText = data.message;
-                document.getElementById('output').innerText = data.output;
+                document.getElementById('message').innerText = "Your PDF is being processed. Go to View Menus to view details.";
+                document.getElementById('output').innerText = "";
             } catch (error) {
-                console.error("Error uploading PDF:", error);
-                document.getElementById('error_message').innerText = "An unexpected error occurred.";
+                console.error("Error starting PDF upload:", error);
+                document.getElementById('error_message').innerText = "An unexpected error occurred while starting the upload.";
             }
         }
     </script>
