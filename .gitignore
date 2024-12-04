@@ -9,4 +9,4 @@ db.*
 # *.pyc
 # *.pyo
 # *.pyd
-# *.so
+# *.so.DS_Store
