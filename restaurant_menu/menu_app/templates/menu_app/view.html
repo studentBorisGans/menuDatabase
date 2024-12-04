@@ -25,9 +25,6 @@
                     processingContainer.innerHTML = "<p>No menus are currently processing.</p>";
                 } else {
                     processingMenus.processes.forEach(menu => {
-                        count++;
-                        activeTimers.push(count)
-
                         const menuDiv = document.createElement('div');
                         menuDiv.className = 'processing-menu';
 // 'restaurant': restaurantInfo.get('name'),
@@ -38,13 +35,13 @@
                             <p>Restaurant Name: ${menu.restaurant}</p>
                             <p>Menu Name: ${menu.menu}</p>
                             <div class="time-since">
-                                <p id="counter${count}"></p>
+                                <p id="counter">${menu.start}</p>
                             </div>
                         `;
                         processingContainer.appendChild(menuDiv);
-                        startTimer(menu.start, count)
+                        // startTimer(menu.start, count)
                     });
-                    startProcessingInterval(count);
+                    // startProcessingInterval(count);
                 }
             } catch (error) {
                 console.error("Error fetching processing menus:", error);
@@ -62,29 +59,29 @@
             }
         }
 
-        let intervalId;
-        function startTimer(startTime, id) {
-            const startTimeDate = new Date(startTime);  // Convert ISO 8601 string to a Date object
-            const counterElement = document.getElementById(`counter${id}`);
+        // let intervalId;
+        // function startTimer(startTime, id) {
+        //     const startTimeDate = new Date(startTime);  // Convert ISO 8601 string to a Date object
+        //     const counterElement = document.getElementById(`counter${id}`);
 
-            intervalId = setInterval(() => {
-                const currentTime = new Date();  // Get the current time
-                const elapsedTime = currentTime - startTimeDate; // Elapsed time in milliseconds
+        //     intervalId = setInterval(() => {
+        //         const currentTime = new Date();  // Get the current time
+        //         const elapsedTime = currentTime - startTimeDate; // Elapsed time in milliseconds
 
-                // Convert elapsed time to minutes and seconds
-                const totalSeconds = Math.floor(elapsedTime / 1000);
-                const minutes = Math.floor(totalSeconds / 60);
-                const seconds = totalSeconds % 60;
+        //         // Convert elapsed time to minutes and seconds
+        //         const totalSeconds = Math.floor(elapsedTime / 1000);
+        //         const minutes = Math.floor(totalSeconds / 60);
+        //         const seconds = totalSeconds % 60;
 
-                // Display the elapsed time in the counter element
-                counterElement.innerText = `Elapsed Time: ${minutes}m ${seconds}s`;
-            }, 1000);  // Update every second   
-        }
+        //         // Display the elapsed time in the counter element
+        //         counterElement.innerText = `Elapsed Time: ${minutes}m ${seconds}s`;
+        //     }, 1000);  // Update every second   
+        // }
 
-        function stopTimer() {
-            clearInterval(intervalId);
-            console.log("Timer stopped.");
-        }
+        // function stopTimer() {
+        //     clearInterval(intervalId);
+        //     console.log("Timer stopped.");
+        // }
 
 
 
