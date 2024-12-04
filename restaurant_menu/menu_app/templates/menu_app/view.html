@@ -8,6 +8,87 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     {{ menu_data|json_script:"menu_data" }}
     <script>
+        async function fetchProcessingMenus() {
+            try {
+                const response = await fetch("/show_processing/");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch processing menus.");
+                }
+
+                const processingMenus = await response.json();
+                console.log(processingMenus.processes)
+
+                const processingContainer = document.getElementById('processing-section');
+                processingContainer.innerHTML = ""; // Clear the container
+
+                if (processingMenus.processes.length === 0) {
+                    processingContainer.innerHTML = "<p>No menus are currently processing.</p>";
+                } else {
+                    processingMenus.processes.forEach(menu => {
+                        count++;
+                        activeTimers.push(count)
+
+                        const menuDiv = document.createElement('div');
+                        menuDiv.className = 'processing-menu';
+// 'restaurant': restaurantInfo.get('name'),
+//                 'menu': menuName,
+//                 'start': datetime.now().isoformat()
+
+                        menuDiv.innerHTML = `
+                            <p>Restaurant Name: ${menu.restaurant}</p>
+                            <p>Menu Name: ${menu.menu}</p>
+                            <div class="time-since">
+                                <p id="counter${count}"></p>
+                            </div>
+                        `;
+                        processingContainer.appendChild(menuDiv);
+                        startTimer(menu.start, count)
+                    });
+                    startProcessingInterval(count);
+                }
+            } catch (error) {
+                console.error("Error fetching processing menus:", error);
+            }
+        }
+        fetchProcessingMenus();
+
+        function startProcessingInterval(count) {
+            if (count > 0) {
+                fetchProcessingMenus();
+            } else {
+                // index = activeTimers.indexOf(count);
+                // activeTimers.splice(index, 1)
+                console.log("No more processing.");
+            }
+        }
+
+        let intervalId;
+        function startTimer(startTime, id) {
+            const startTimeDate = new Date(startTime);  // Convert ISO 8601 string to a Date object
+            const counterElement = document.getElementById(`counter${id}`);
+
+            intervalId = setInterval(() => {
+                const currentTime = new Date();  // Get the current time
+                const elapsedTime = currentTime - startTimeDate; // Elapsed time in milliseconds
+
+                // Convert elapsed time to minutes and seconds
+                const totalSeconds = Math.floor(elapsedTime / 1000);
+                const minutes = Math.floor(totalSeconds / 60);
+                const seconds = totalSeconds % 60;
+
+                // Display the elapsed time in the counter element
+                counterElement.innerText = `Elapsed Time: ${minutes}m ${seconds}s`;
+            }, 1000);  // Update every second   
+        }
+
+        function stopTimer() {
+            clearInterval(intervalId);
+            console.log("Timer stopped.");
+        }
+
+
+
+
         function toggleDetails(restaurantId) {
             const detailsDiv = document.getElementById(`details-${restaurantId}`);
             if (detailsDiv.style.display === "none") {
@@ -38,9 +119,11 @@
     </header>
 
     <h1>Menu Viewer</h1>
+    <div id="processing-section"></div>
     <div id="restaurant-container">
         <!-- Placeholder for dynamically inserted content -->
     </div>
+
 
     <script>
         // Replace with JSON data passed from Django

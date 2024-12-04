@@ -46,6 +46,15 @@ class MenuService:
                 restaurant.save()
                 #Minimize operations by only writing to DB if changes have been made  
         return restaurant
+    
+    @staticmethod
+    def get_or_create_dietary_restriction(restaurant_id, name, description=None):
+        dietary_restriction, created = DietaryRestrictions.objects.get_or_create(
+            restaurant_id=restaurant_id,
+            name=name,
+            defaults={"description": description}
+        )
+        return dietary_restriction
 
     @staticmethod
     def create_menu_section(menu_id, name, description=None):
@@ -149,8 +158,9 @@ class MenuService:
                             if dietary_restriction_name is not None:
                                 restriction_save = transaction.savepoint()
                                 try:
-                                    diet_restriction = DietaryRestrictions(restaurant=restaurant, name=dietary_restriction_name)
-                                    diet_restriction.save()
+                                    diet_restriction = MenuService.get_or_create_dietary_restriction(menu_id, dietary_restriction_name)
+                                    # DietaryRestrictions(restaurant=restaurant, name=dietary_restriction_name)
+                                    # diet_restriction.save()
                                     menu_item_diet_restriction = MenuItemDietaryRestrictions(item=menu_item, restriction=diet_restriction)
                                     item_restrictions.append(menu_item_diet_restriction)
                                 except IntegrityError as e:
@@ -195,13 +205,13 @@ class MenuService:
     # For autofill functionality in forms.py
     @staticmethod
     def get_all_restaurant_data():
-        restaurants = Restaurants.objects.all()
+        restaurants = Restaurants.objects.values('name', 'address', 'phone_number', 'email', 'website')
         return {
-            restaurant.name: {
-                "address": restaurant.address or "",
-                "phone_number": restaurant.phone_number or "",
-                "email": restaurant.email or "",
-                "website": restaurant.website or ""
+            restaurant.get('name'): {
+                "address": restaurant.get('address', ""),
+                "phone_number": restaurant.get('phone_number', ""),
+                "email": restaurant.get('email', ""),
+                "website": restaurant.get('website', "")
             }
             for restaurant in restaurants
         }

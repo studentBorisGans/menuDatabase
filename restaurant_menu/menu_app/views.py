@@ -6,14 +6,15 @@ from django.http import JsonResponse
 import json
 import pdfplumber
 import requests
+import queue
+from datetime import datetime
 
-# from .models import ProcessedData
 from .forms import PDFUploadForm
 from .utils import PdfParse
 from .operations import MenuService
-# from .utils import process_pdf, send_to_gbt, upload_data
 
-# Create your views here.
+PROCESSING = queue.Queue()
+
 def home(request):
     return render(request, 'menu_app/frontend.html')
 
@@ -32,19 +33,27 @@ def handle_pdf_upload(request):
             print(f"Form is clean!: {pdf_file}")
             print(f"Form is clean!: {restaurantInfo}")
 
+            process = {
+                'restaurant': restaurantInfo.get('name'),
+                'menu': menuName,
+                'start': datetime.now().isoformat()
+            }
+            # show processing
+            global PROCESSING
+            PROCESSING.put(process)
+            print(f"Queued process: {process}")
+
             parse = PdfParse(pdf_file, menuName)
             status, response, errors = parse.toImg()
             if status:
                 MenuService.upload_full_menu(restaurantInfo, response, errors)
-            # else: #Clean up...
-                # return JsonResponse({'message': 'PDF processing unsuccessful. No DB operations done.', 'error_message': errors.get('file_wide')})
-            # return JsonResponse({'message': 'PDF processing successful.', 'restaurant_data': data, 'DB Operation': DB, 'error_message': ''})
-        # else:
-            # return JsonResponse({'message': 'Invalid form submission', 'restaurant_data': data, 'error_message': form.return_error_message}, status=400)
-        
+                # delete processing and update
+
+            print(f"Dequed process: {PROCESSING.get()}")
+
+            # Call API
     form = PDFUploadForm()
     return render(request, 'menu_app/upload.html', {'form': form, 'restaurant_data': data})
-# add restuarant data.
 
 def view_uploads(request):
     if request.method == 'POST':
@@ -73,4 +82,33 @@ def delete_menu(request):
 
 def inspect_menu(request, menu_id):
     return render(request, 'menu_app/menu_inspect.html', {'menu_id': menu_id})
+
+def show_processing(request):
+    if request.method == "GET":
+        response_data = {
+            'processes': []
+        }
+        test_data = {
+            'processes': [ {
+                'restaurant': 'tacobell',
+                'menu': 'tacos',
+                'start': datetime.now().isoformat()
+                }, 
+                {
+                'restaurant': 'other',
+                'menu': 'other',
+                'start': datetime.now().isoformat()
+                }  
+            ]}
+        return JsonResponse(test_data)
+
+        iterableQueue = list(PROCESSING.queue)
+        for process in iterableQueue:
+            print(f"Process: {process}")
+            response_data['processes'].append(process)
+        return JsonResponse(response_data)
+
+    return JsonResponse({"error": "Invalid request method"}, status=405)
+
+# def update_processing(request, )
 
