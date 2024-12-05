@@ -12,8 +12,6 @@ class Restaurants(models.Model):
     def __str__(self):
         return self.name
     
-
-# Refactor defualts/blank
 class Menus(models.Model):
     menu_id = models.AutoField(primary_key=True)
     restaurant = models.ForeignKey(Restaurants, on_delete=models.CASCADE, related_name='menus')
@@ -47,7 +45,6 @@ class MenuSections(models.Model):
     def __str__(self):
         return f"Section: {self.name} in {self.menu}"
 
-# Change defaults
 class MenuItems(models.Model):
     item_id = models.AutoField(primary_key=True)
     section = models.ForeignKey(MenuSections, on_delete=models.CASCADE, related_name='items')
@@ -72,7 +69,7 @@ class MenuItemDietaryRestrictions(models.Model):
     restriction = models.ForeignKey(DietaryRestrictions, on_delete=models.CASCADE)
 
     class Meta:
-        unique_together = ('item', 'restriction') #OR add ID????
+        unique_together = ('item', 'restriction')
 
     def __str__(self):
         return f"{self.item.name} - {self.restriction.name}"
