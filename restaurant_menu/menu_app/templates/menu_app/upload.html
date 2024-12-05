@@ -22,6 +22,8 @@
                 formData.set('restaurant_name', newRestaurantName);
             }
 
+            const loadingElement = document.getElementById('loading');
+            loadingElement.style.display = 'block';
 
             try {
                 // Send the form data to the server
@@ -31,12 +33,14 @@
                     headers: {
                         "X-CSRFToken": "{{ csrf_token }}",
                     },
+                }).then( response => {
+                    alert("PDF uploaded successfully!");
+                    console.log('hide loading animation');
+                    loadingElement.style.display = 'none';
                 });
 
-                alert("PDF uploaded successfully!");
 
                 document.getElementById('message').innerText = "Your PDF is being processed. Go to View Menus to view details.";
-                document.getElementById('output').innerText = "";
             } catch (error) {
                 console.error("Error starting PDF upload:", error);
                 document.getElementById('error_message').innerText = "An unexpected error occurred while starting the upload.";
@@ -61,8 +65,19 @@
     <div id="general">
         <h1>Upload Menu PDF</h1>
 
-        <p id="error_message" style="color:red;"></p>
+        <!-- <p id="error_message" style="color:red;"></p>
         <p id="message" style="color:green;"></p>
+        <div class='loadingMsg' id="loading" style="display: none;">
+            <p id="loading">Loading...</p>
+            <div class="spinner"></div>
+        </div> -->
+        <p id="error_message" style="color: red; text-align: center;"></p>
+        <p id="message" style="color: green; text-align: center;"></p>
+        <div class="loadingMsg" id="loading" style="display: none; text-align: center;">
+            <p id="loading_text" style="margin: 0;">Loading...</p>
+            <div class="spinner" style="margin: 10px auto; width: 24px; height: 24px; border: 4px solid rgba(0, 0, 0, 0.1); border-left-color: #000; border-radius: 50%; animation: spin 1s linear infinite;"></div>
+        </div>
+
 
         <form method="POST" enctype="multipart/form-data" onsubmit="uploadPDF(event)">
             {% csrf_token %}
@@ -111,10 +126,6 @@
             
             <button type="submit" id="uploadButton">Upload</button>
         </form>
-
-        <!-- Change to be user friendly: if true then ..., false then ... -->
-        <p>Response:</p>
-        <div id="output"></div>
     </div>
     
 

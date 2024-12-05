@@ -48,9 +48,9 @@ class MenuService:
         return restaurant
     
     @staticmethod
-    def get_or_create_dietary_restriction(restaurant_id, name, description=None):
+    def get_or_create_dietary_restriction(restaurant, name, description=None):
         dietary_restriction, created = DietaryRestrictions.objects.get_or_create(
-            restaurant_id=restaurant_id,
+            restaurant=restaurant,
             name=name,
             defaults={"description": description}
         )
@@ -121,6 +121,7 @@ class MenuService:
 
             menu = MenuService.create_menu(restaurant_id, menu_data.get("description"))
             menu_id = menu.menu_id
+            print(f'Menu id: {menu_id}')
 
             # Find current version number for restuarnt, if it exists; fix to point to restuarant
             menu_version = MenuService.create_menu_version(restaurant_id, menu.description)
@@ -159,11 +160,10 @@ class MenuService:
                             if dietary_restriction_name is not None:
                                 restriction_save = transaction.savepoint()
                                 try:
-                                    diet_restriction = MenuService.get_or_create_dietary_restriction(menu_id, dietary_restriction_name)
-                                    # DietaryRestrictions(restaurant=restaurant, name=dietary_restriction_name)
-                                    # diet_restriction.save()
+                                    diet_restriction = MenuService.get_or_create_dietary_restriction(restaurant, dietary_restriction_name)
                                     menu_item_diet_restriction = MenuItemDietaryRestrictions(item=menu_item, restriction=diet_restriction)
                                     item_restrictions.append(menu_item_diet_restriction)
+
                                 except IntegrityError as e:
                                     print(f"Constraint violation: {e}")
                                     completeSuccess = False
@@ -255,7 +255,6 @@ class MenuService:
                 })
 
             for version in restaurant.version_list:  # Access preloaded versions
-                # Fetch the first log if it exists
                 log = version.log_list[0] if version.log_list else None
                 status = log.status if log else "Unknown"
                 error_message = log.error_message if log else ""
@@ -295,9 +294,38 @@ class MenuService:
     def delete_menu(menu_id):
         try:
             with transaction.atomic():
-                Menus.objects.filter(menu_id=menu_id).delete()
+                #Menus.objects.filter(menu_id=menu_id).delete()
+
+                menu = Menus.objects.filter(menu_id=menu_id).first()
+                if not menu:
+                    raise ValueError("Menu not found")
+
+                # Step 2: Find the related restaurant object using the menu's restaurant_id
+                restaurant = menu.restaurant
+                if not restaurant:
+                    raise ValueError("Restaurant related to menu not found")
+
+                print(f"Params: {restaurant.restaurant_id}, {menu.created_at.replace(microsecond=0)}, {menu.description}")
+                # Step 3: Find the menu_version related to the restaurant and match created_at and description
+                menu_version = Menu_Versions.objects.filter(
+                    restaurant=restaurant,
+                    description=menu.description
+                ).first()
+
+                if not menu_version:
+                    raise ValueError("Menu version matching the menu not found")
+
+                # Step 4: Find and delete the associated processing log
+                processing_log = MenuProcessingLogs.objects.filter(version_id=menu_version.version_id).first()
+                if processing_log:
+                    processing_log.delete()
+
+                # Step 5: Delete the menu_version and the menu
+                menu_version.delete()
+                menu.delete()
+                
                 # Cascading deletes turned on
-            return True
+                return True
         except Exception as e:
             print(f"Error deleting menu with ID {menu_id}: {e}")
             return False

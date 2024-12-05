@@ -12,11 +12,11 @@
         <div class="container flex justify-between items-center">
             <nav>
                 <ul class="navbar">
-                    <li><a href="{%url 'home' %}">Home</a></li>
-                    <li><a href="{%url 'about' %}">About</a></li>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
                     <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
                     <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
-                </ul>                
+                </ul>
             </nav>
         </div>
     </header>
@@ -24,34 +24,25 @@
     <main class="container">
         <div class="title">
             <h1>Welcome to our Menu Management App</h1>
-            <p>By: Boris Gans, Kareem Hawwash, Fares Qaddoumi and Gaby Vega</p>
+            <p>By: Boris Gans, Kareem Hawwash, Fares Qaddoumi, and Gaby Vega</p>
         </div>
-            <section class="grid-layout">
+
+        <section class="grid-layout">
+            <div class="grid-item">
                 <a href="{% url 'pdf_upload' %}">
-                    <div class="grid-item">
-                        <!-- <img src="icon1.svg" alt="Icon 1"> Replace with your icon -->
-                        <h3>Upload a Menu!</h3>
-                        <p>Start your Menu Management journey by uploading a menu!</p>
-                    </div>
+                    <h3>Upload a Menu!</h3>
+                    <p>Start your Menu Management journey by uploading a menu!</p>
                 </a>
+            </div>
+            <div class="grid-item">
                 <a href="{% url 'view_uploads' %}">
-                    <div class="grid-item">
-                        <!-- <img src="icon2.svg" alt="Icon 2"> Replace with your icon -->
-                        <h3>View Menus</h3>
-                        <p>Powered by MySQL and simplified using Django's ORM, quickly filter and search your entries based on numerous parameters.</p>
-                    </div>
+                    <h3>View Menus</h3>
+                    <p>Powered by MySQL and simplified using Django's ORM, quickly filter and search your entries based on numerous parameters.</p>
                 </a>
-                <!-- <a href=""> -->
-                    <!-- <div class="grid-item"> -->
-                        <!-- <img src="icon3.svg" alt="Icon 3"> Replace with your icon -->
-                        <!-- <h3>Edit Menus</h3> -->
-                        <!-- <p>Edit entire or individual components of a menu and access menu history</p> -->
-                    <!-- </div> -->
-                <!-- </a> -->
-            </section>
+            </div>
+        </section>
     </main>
 
-    <!-- Change to django + other overarching frameworks used; link to download / documentation -->
     <footer class="footer">
         <div class="container">
             <nav>

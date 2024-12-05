@@ -34,6 +34,9 @@
         <div class="menu-info-container" id="menu-container">
             <!-- General menu information -->
         </div>
+        <!-- <div id="buttonsContainer">
+            <button onclick="showSection('all')">Show All</button>
+        </div> -->
         <div id="sections-container">
             <!-- Sections will be dynamically added here -->
         </div>
@@ -56,10 +59,14 @@
                         <p><strong>Average Menu Price:</strong> $${data.avg_menu_price.toFixed(2)}</p>
                     </div>
                 `;
+                buttonCont = document.getElementById("buttonsContainer")
 
                 // Iterate through sections
                 if (data.sections && data.sections.length > 0) {
                     data.sections.forEach(section => {
+
+
+
                         const sectionDiv = document.createElement('div');
                         sectionDiv.className = 'viewSection';
 
@@ -94,6 +101,7 @@
                             </tbody>
                         `;
                         sectionDiv.appendChild(table);
+                        // collapseAbleDiv.appendChild(sectionDiv)
                         sectionsContainer.appendChild(sectionDiv);
                     });
                 } else {
@@ -105,6 +113,40 @@
                 console.error('Error fetching menu data:', error);
                 menuContainer.innerHTML = '<p>Failed to load menu data.</p>';
             });
+
+        //     function showSection(sectionName) {
+        //         // const targetClass = button.innerHTML.trim();
+        //         const sectionsContainer = document.getElementById('sections-container');
+
+        //         if (sectionName === 'all') {
+        //             if (sectionsContainer) {
+        //                 // Hide all child elements of sectionsContainer
+        //                 Array.from(sectionsContainer.children).forEach(child => {
+        //                     child.style.display = 'block';
+        //                 });
+        //         } else {
+        //             if (sectionsContainer) {
+        //                 // Hide all child elements of sectionsContainer
+        //                 Array.from(sectionsContainer.children).forEach(child => {
+        //                     child.style.display = 'none';
+        //                 });
+
+        //                 // Show the element with the matching class name
+        //                 const targetElement = sectionsContainer.querySelector(`.${sectionName}`);
+        //                 if (targetElement) {
+        //                     targetElement.style.display = 'block';
+        //                 } else {
+        //                     console.warn(`No element found with class name "${sectionName}"`);
+        //                 }
+        //             }
+        //         }
+
+                
+        //     }
+        // }
+
+
+
         // if (!menuData || menuData.length === 0) {
         //     menuContainer.innerHTML = "<p>No menu data available to display.</p>";
         // } else {

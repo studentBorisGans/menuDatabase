@@ -20,5 +20,3 @@ print(numpy.__version__)
 
 #   Filters!!
 # Versions arent deleting?
-# Also: Constraint violation: (1452, 'Cannot add or update a child row: a foreign key constraint fails (`menu_app`.`menu_app_dietaryrestrictions`, CONSTRAINT `menu_app_dietaryrest_restaurant_id_9ec08e7d_fk_menu_app_` FOREIGN KEY (`restaurant_id`) REFERENCES `menu_app_restaurants` (`restaurant_')
-# Error processing section: Sides
