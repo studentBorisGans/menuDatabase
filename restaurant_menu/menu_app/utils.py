@@ -4,7 +4,9 @@ import pdfplumber
 import base64
 from io import BytesIO
 from openai import OpenAI
+from pdf2image import convert_from_bytes
 from django.conf import settings
+import fitz
 # import response
 # import pytesseract
 # import cv2
@@ -14,7 +16,9 @@ from django.conf import settings
 # NO PARSE; JUST UPLOAD IMG TO GBT
 class PdfParse:
     def __init__(self, file, menuDescription):
+        # self.pdf = file
         self.pdf = file
+
         self.menuDescription = menuDescription
         
         # Global error messages to be used for logs
@@ -29,9 +33,40 @@ class PdfParse:
     def toImg(self):
         returnJson = {"description": self.menuDescription,
                 "sections": []
-            }
+        }
         responses = []
         try:
+            # self.pdf.seek(0)
+            # doc = fitz.open(stream=self.pdf, filetype="pdf")
+            # print(f"Len: {len(doc)}")
+            # for i in range(len(doc)):
+            #     print(f"Page: {i}")
+            #     page = doc.load_page(i)
+            #     pix = page.get_pixmap()
+
+            #     buffer = BytesIO()
+            #     pix.save(buffer, format="PNG")
+            #     buffer.seek(0)
+
+            #     binImage = buffer.read()
+            #     b64Image = base64.b64encode(binImage).decode("utf-8")
+            #     print(f"Binary image created")
+
+            #     response = self.genResponse(b64Image, i)  # Sending base64 image of the first page (page 1)
+            #     if not self.errorMsg:
+            #         responses.append((True, response))
+            #     else:
+            #         print(f"Response from OpenAI: page error")
+            #         return  # Early exit if an error occurred
+            # # Append the response data to returnJson['sections']
+            # for page, response in enumerate(responses):
+            #     if isinstance(response[1][0], dict):  # OpenAI provided a valid json object
+            #         page_data = response[1]
+            #         returnJson['sections'].extend(page_data)  # Add the page data to sections
+
+            # return (True, returnJson, self.errorMessages)
+
+
             with pdfplumber.open(self.pdf) as pdf:
                 for i, page in enumerate(pdf.pages):
                     self.errorMsg = False

@@ -72,10 +72,10 @@ class MenuService:
         return Menus.objects.create(restaurant_id=restaurant, description=description)
 
     @staticmethod
-    def create_menu_version(menu_id, description=None):
+    def create_menu_version(restaurant_id, description=None):
         """Creates a version for a menu."""
         return Menu_Versions.objects.create(
-            menu_id=menu_id, description=description
+            restaurant_id=restaurant_id, description=description
         )
 
     @staticmethod
@@ -123,7 +123,8 @@ class MenuService:
             menu_id = menu.menu_id
 
             # Find current version number for restuarnt, if it exists; fix to point to restuarant
-            menu_version = MenuService.create_menu_version(menu_id, menu.description)
+            menu_version = MenuService.create_menu_version(restaurant_id, menu.description)
+            menu_version.save()
 
             # Indicates no data was collected for file, other than what the user specified in the form
             if errors.get('file_wide'):
@@ -223,20 +224,19 @@ class MenuService:
             Restaurants.objects.prefetch_related(
                 Prefetch(
                     'menus',
-                    queryset=Menus.objects.prefetch_related(
-                        Prefetch(
-                            'versions',
-                            queryset=Menu_Versions.objects.prefetch_related(
-                                Prefetch(
-                                    'processing_logs',
-                                    queryset=MenuProcessingLogs.objects.all(),
-                                    to_attr='log_list'
-                                )
-                            ).order_by('-created_at'),  # Order versions by creation time
-                            to_attr='version_list'
-                        )
-                    ),
+                    queryset=Menus.objects.all(),
                     to_attr='menu_list'
+                ),
+                Prefetch(
+                    'versions',
+                    queryset=Menu_Versions.objects.prefetch_related(
+                        Prefetch(
+                            'processing_logs',
+                            queryset=MenuProcessingLogs.objects.all(),
+                            to_attr='log_list'
+                        )
+                    ).order_by('-created_at'),  # Order versions by creation time
+                    to_attr='version_list'
                 )
             )
         )
@@ -245,21 +245,36 @@ class MenuService:
 
         for restaurant in restaurants:
             menu_list = []
+            version_list = []
+            combined_list = []
             for menu in restaurant.menu_list:  # Access preloaded menus
-                for version in menu.version_list:  # Access preloaded versions
-                    # Fetch the first log if it exists
-                    log = version.log_list[0] if version.log_list else None
-                    status = log.status if log else "Unknown"
-                    error_message = log.error_message if log else ""
+                menu_list.append({
+                        "menu_id": menu.menu_id,
+                        "created_at": menu.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
+                        "description": menu.description
+                })
 
-                    # Append version data to menu list
-                    menu_list.append({
-                        "menu_id": version.menu_id,
-                        "created_at": version.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
-                        "description": version.description,
-                        "status": status,
-                        "error_message": error_message,
-                    })
+            for version in restaurant.version_list:  # Access preloaded versions
+                # Fetch the first log if it exists
+                log = version.log_list[0] if version.log_list else None
+                status = log.status if log else "Unknown"
+                error_message = log.error_message if log else ""
+
+                # Append version data to menu list
+                version_list.append({
+                    "status": status,
+                    "error_message": error_message,
+                })
+            
+            # Combinging version and menu list
+            for i, element in enumerate(menu_list):
+                combined_list.append({
+                    'menu_id': menu_list[i].get('menu_id'),
+                    'created_at': menu_list[i].get('created_at'),
+                    'description': menu_list[i].get('description'),
+                    'status': version_list[i].get('status'),
+                    'error_message': version_list[i].get('error_message')
+                })
 
             # Append restaurant data to final structure
             restaurant_data.append({
@@ -270,7 +285,7 @@ class MenuService:
                 "email": restaurant.email or "",
                 "website": restaurant.website or "",
                 "created_at": restaurant.created_at.strftime("%Y-%m-%d"),
-                "menus": menu_list,
+                "menus": combined_list,
             })
 
         print(f"Restaurant Data: \n{restaurant_data}")
@@ -288,19 +303,37 @@ class MenuService:
             return False
 
     def get_menu_data(menu_id):
+        # menu = (
+        #     Menus.objects.filter(menu_id=menu_id)
+        #     .prefetch_related('sections', 'versions', 'sections__items', 'versions__processing_logs')
+        # )
         menu = (
             Menus.objects.filter(menu_id=menu_id)
-            .prefetch_related('sections', 'versions', 'sections__items', 'versions__processing_logs')
+            .prefetch_related(
+                Prefetch(
+                    'sections',
+                    queryset=MenuSections.objects.prefetch_related(
+                        Prefetch(
+                            'items',
+                            queryset=MenuItems.objects.all(),
+                            to_attr='item_list'
+                        )
+                    ),
+                    to_attr='section_list'
+                )
+            )
         )
         if not menu.exists():
             return {}
         menu_data = menu.first()
         print(f"Menu data: {menu_data}")
-        version = menu_data.versions.first()
+
+        restaurant = menu_data.restaurant
+        version = restaurant.versions.order_by('-created_at').first()
 
         menu_json = {
-            "version_number": version.version_number,
-            "created_at": menu_data.created_at.strftime("%Y-%m-%d at %H:%M:%S"),
+            "version_number": version.version_number if version else None,
+            "created_at": version.created_at.strftime("%Y-%m-%d at %H:%M:%S") if version else None,
             "status": None,
             "error_message": "",
             "description": menu_data.description,
@@ -313,30 +346,38 @@ class MenuService:
             menu_json["error_message"] = log.error_message if log.error_message else ""
 
         # Fetch the sections and calculate average price per section
-        for section in menu_data.sections.all():
-            section_data = {
-                "section_name": section.name,
-                "menu_items": [],
-                "avg_section_price": round(float(section.items.aggregate(Avg('price'))['price__avg'] or 0), 2),  # Calculate average price for items in this section
-            }
+        try:
+            for section in menu_data.sections.all():
+                section_data = {
+                    "section_name": section.name,
+                    "menu_items": [],
+                    "avg_section_price": round(float(section.items.aggregate(Avg('price'))['price__avg'] or 0), 2),  # Calculate average price for items in this section
+                }
 
-            # Add the menu items for this section
-            for menu_item in section.items.all():
-                restrict = ""
-                if menu_item.menuitemdietaryrestrictions_set.exists():
-                    restriction = menu_item.menuitemdietaryrestrictions_set.first()
-                    dietaryRestriction = restriction.dietaryrestrictions_set.first()
-                    restrict = dietaryRestriction.name
-                section_data["menu_items"].append({
-                    "menu_item": menu_item.name,
-                    "price": float(menu_item.price),
-                    "dietary_restriction": restrict,
-                    "description": menu_item.description
-                })
+                # Add the menu items for this section
+                for menu_item in section.items.all():
+                    restrict = ""
+                    if menu_item.menuitemdietaryrestrictions_set.exists():
+                        for restriction in menu_item.menuitemdietaryrestrictions_set.all():
+                            dietary_restriction = restriction.restriction  # Access the associated DietaryRestrictions
+                            restrict = dietary_restriction.name
+                            break
+                        # restriction = menu_item.menuitemdietaryrestrictions_set.first()
+                        # dietaryRestriction = restriction.dietaryrestrictions_set.first()
+                        # restrict = dietaryRestriction.name
+                    section_data["menu_items"].append({
+                        "menu_item": menu_item.name,
+                        "price": float(menu_item.price),
+                        "dietary_restriction": restrict,
+                        "description": menu_item.description
+                    })
 
 
-            # Append the section data to the menu_json object
-            menu_json["sections"].append(section_data)
+                # Append the section data to the menu_json object
+                menu_json["sections"].append(section_data)
+        except Exception as e:
+            print(f"Error: {e}")
+            return
 
         all_prices = [item['avg_section_price'] for item in menu_json["sections"] if item['avg_section_price'] is not None]
         menu_json["avg_menu_price"] = sum(all_prices) / len(all_prices) if all_prices else 0

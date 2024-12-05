@@ -10,15 +10,15 @@ print(numpy.__version__)
 #   DONE: Move errors to seperate structure
 #   DONE: Implement efficient queries:
 #   DONE: Fix dietary restriction; not uploading (fixed I think)
-#           Uploads but it doesn't check if one alr exists
-
-#   !!!!!UPDATE DATABASE
-#       Menu-Verisons should point to restuarant ID not menu_id
-#       There will never be two menus with the same menu_id so its compleltey pointless right now.
+#
+#   DONE: UPDATE DATABASE
+    #       Menu-Verisons should point to restuarant ID not menu_id
+    #       There will never be two menus with the same menu_id so its compleltey pointless right now.
 #       
-#   API endpoint for view.html; live updates for deletion and processing PDFs  
-# 
-#   Add section description in AI call???
+#   DONE: API endpoint for view.html; live updates for deletion 
+#           impossible without some crazy shit: and processing PDFs
 
-#   Edit menu page: push data to DB
-#   Delete menu functionality (auto refresh?)
+#   Filters!!
+# Versions arent deleting?
+# Also: Constraint violation: (1452, 'Cannot add or update a child row: a foreign key constraint fails (`menu_app`.`menu_app_dietaryrestrictions`, CONSTRAINT `menu_app_dietaryrest_restaurant_id_9ec08e7d_fk_menu_app_` FOREIGN KEY (`restaurant_id`) REFERENCES `menu_app_restaurants` (`restaurant_')
+# Error processing section: Sides

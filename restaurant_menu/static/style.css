@@ -1,295 +1,532 @@
-/* Reference */
-
-:root {
-    --primary: #53c6f7;
-    --primary-dark: #1e40af;
-
-    --background: #fcf8f8;
-    --text: #1e293b;
-    --border: #e0e0e0;
-    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  }
-/* -------------------------------------------------------GLOBAL--------------------------------------------------------------------- */
-
-.title {
-  color: black;
-  padding: 4rem 0;
-  text-align: center;
+/* Reset and Base Styles */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }
 
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  color: #fff;
-  padding: 1rem 0;
-  z-index: 1000;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid var(--border);
-  background-color: #f8f9fa;
-  padding: 10px 20px;
-  box-shadow: var(--shadow);
+html {
+    scroll-behavior: smooth;
 }
-
-.navbar {
-  display: inline-block;
-  list-style: none;
-  display: flex;
-  gap: 20px;
-  margin: 0;
-  padding: 0;
-}
-.navbar li a {
-  text-decoration: none;
-  /* color: #333; */
-  color: var(--text);
-
-  font-size: 16px;
-  font-weight: 500;
-  padding: 5px 10px;
-  transition: color 0.3s, background-color 0.3s;
-}
-.navbar li a:hover {
-  background-color: #e9ecef;
-  color: #007bff;
-  border-radius: 5px;
-  text-decoration: underline;
-
-}
-
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background);
-  color: var(--text);
-  line-height: 1.5;
-  min-height: 100vh;
-  flex-direction: column;
-  display: flex;
-  margin: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    line-height: 1.6;
+    min-height: 100vh;
+}
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+/* Variables */
+:root {
+    --primary-color: #1e40af;
+    --secondary-color: #fff;
+    /* --accent-color: #ff5722; */
+    --text-color: #1e293b;
+    --background-color: #f0f2f5;
+    --header-height: 60px;
+    --footer-height: 60px;
+    --container-width: 1200px;
+    --transition-speed: 0.3s;
+}
+
+/* Header */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: var(--header-height);
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 1rem;
+    flex: 1; /* Makes the main content area flexible */
 }
 
-/* Section Styling */
-.section-container {
-  display: flex; /* Makes sections inline */
-  flex-wrap: wrap; /* Allows wrapping to a new row if there's insufficient space */
-  gap: 20px; /* Space between cells */
-  justify-content: space-between; /* Ensures sections align nicely */
-  margin: 2rem 0; /* Adds spacing around the container */
+.header .container {
+    /* display: flex; */
+    align-items: center;
+    justify-content: space-between;
 }
 
-.section {
-  flex: 1 1 calc(33.333% - 20px); /* Makes cells responsive: 3 per row */
-  background-color: var(--primary-dark); /* Darker background color */
-  color: #fff; /* White text for contrast */
-  border: 1px solid var(--border); /* Border for cell separation */
-  box-shadow: var(--shadow); /* Add subtle shadow */
-  border-radius: 5px; /* Slightly rounded corners */
-  padding: 1rem; /* Space inside each cell */
-  min-width: 200px; /* Ensures cells don't shrink too small */
-  max-width: 400px; /* Prevents cells from growing too large */
-  text-align: center; /* Centers text in the cells */
+.navbar {
+    list-style: none;
+    display: flex;
 }
 
-/* Text inside the sections */
-.section h2 {
-  margin: 0 0 10px;
-  font-size: 1.25rem; /* Slightly larger heading font */
-  font-weight: bold;
+.navbar li {
+    margin: 0 15px;
 }
 
-.section p {
-  font-size: 0.9rem; /* Smaller paragraph font */
-  margin: 0;
+.navbar a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: color var(--transition-speed);
 }
 
+.navbar a:hover {
+    color: var(--accent-color);
+}
+
+/* Main Content */
+main {
+    margin-top: calc(var(--header-height) + 20px);
+    padding: 20px;
+}
+
+.title h1 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.title p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.text-content,
+.additional-text {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.text-content img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.text-content p,
+.additional-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.additional-text h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+/* Grid Layout */
 .grid-layout {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 2rem;
-  margin: 2rem 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+    margin: 40px 0;
 }
 
 .grid-item {
-  background: var(--background);
-  padding: 2rem;
-  text-align: center;
-  border-radius: 8px;
-  box-shadow: var(--shadow);
+    background-color: var(--secondary-color);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    flex: 1 1 calc(33% - 40px);
+    max-width: calc(33% - 40px);
+    transition: transform var(--transition-speed), box-shadow var(--transition-speed);
 }
 
-
-
-footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background: #333;
-  color: #fff;
-  text-align: center;
-  padding: 0.5rem 0;
+.grid-item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
-.footer .git li {
-  display: inline-block;
-  margin: 0 0.5rem;
+.grid-item h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+    color: var(--primary-color);
 }
 
-.footer .git a {
-  color: #fff;
-  text-decoration: none;
-}
-.footer .git {
-  display: flex;
-  justify-content: center;
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.grid-item p {
+    font-size: 1rem;
+    color: var(--text-color);
 }
 
-.footer a:hover {
-  text-decoration: underline; /* Adds an underline on hover for accessibility */
-}
-  
-/* -------------------------------------------------------GLOBAL--------------------------------------------------------------------- */
- 
-
-
-
-  
-  /* .upload-button {
-    background-color: var(--primary);
-    color: white;
-    padding: 0.75rem 1.5rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
-  }
-  
-  .upload-button:hover {
-    background-color: var(--primary-dark);
-  } */
-
-  /* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
-/* Not working; temporary cleaning of upload menu */
-#general { 
-  display: flex; /* Use flexbox for alignment */
-  flex-direction: column; /* Stack child elements vertically */
-  justify-content: center; /* Center content vertically */
-  align-items: center; /* Center content horizontally */
-  height: 100vh; /* Make the container take up the full viewport height */
-  text-align: center; /* Center-align text inside the container */
-  margin: 0 auto; /* Ensure it stays centered horizontally */
-  background-color: #f9f9f9; /* Optional: Add a light background for better appearance */
-  border: 1px solid #ddd; /* Optional: Add a subtle border */
-  border-radius: 8px; /* Optional: Slightly round the corners */
-  padding: 20px; /* Optional: Add padding around the content */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
+/* Forms */
 form {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: var(--secondary-color);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 fieldset {
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 1rem;
-  margin-bottom: 1.5rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+    padding: 20px;
 }
 
 legend {
-  font-weight: bold;
-  padding: 0 10px;
-  color: #333;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    padding: 0 10px;
 }
 
 .form-group {
-  margin-bottom: 1rem;
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
 }
 
-
-#uploadButton {
-  margin-top: 10px; /* Add space above the button */
-  padding: 10px 20px; /* Add padding to make the button larger */
-  border: none;
-  border-radius: 4px; /* Slightly rounded corners */
-  background-color: #007bff; /* Primary blue color */
-  color: white; /* White text for contrast */
-  font-size: 16px; /* Adjust font size */
-  cursor: pointer; /* Show a pointer on hover */
-  transition: background-color 0.3s ease; /* Smooth hover effect */
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--text-color);
 }
-#uploadButton:hover {
-  background-color: #0056b3; /* Darker blue on hover */
-}
-/* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
 
-/* -------------------------------------------------------VIEW.HTML--------------------------------------------------------------------- */
-  .restaurant {
-      border: 1px solid #ccc;
-      padding: 10px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-  }
-  .restaurant-header {
-      display: flex;
-      justify-content: space-between;
-      cursor: pointer;
-      font-weight: bold;
-  }
-  .restaurant-details {
-      display: none;
-      margin-top: 10px;
-  }
-  .menu-version {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border: 1px solid #ddd;
-      padding: 10px;
-      margin-bottom: 5px;
-      border-radius: 3px;
-      background-color: #f9f9f9;
-      cursor: pointer;
-  }
-  .menu-version:hover {
-      background-color: #eaeaea;
-  }
-  button.delete {
-    background-color: #dc3545;
-    color: white;
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="url"],
+.form-group input[type="file"],
+.form-group select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    border-color: var(--primary-color);
+    outline: none;
+}
+
+#uploadButton,
+button {
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
     border: none;
     border-radius: 5px;
-    padding: 5px 10px;
     cursor: pointer;
+    font-size: 1rem;
+    transition: background-color var(--transition-speed);
+}
+
+#uploadButton:hover,
+button:hover {
+    background-color: var(--accent-color);
+}
+
+#error_message {
+    color: #e74c3c;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+#message {
+    color: #2ecc71;
+    margin-bottom: 20px;
+    text-align: center;
+
+}
+
+/* Footer */
+.footer {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    text-align: center;
+    padding: 20px;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #e0e0e0;
+}
+
+.footer .git {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.footer .git li a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 1rem;
+}
+
+.footer .git li a:hover {
+    color: var(--accent-color);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .grid-item {
+        flex: 1 1 calc(50% - 40px);
+        max-width: calc(50% - 40px);
+    }
+}
+
+@media (max-width: 576px) {
+    .navbar {
+        flex-direction: column;
+        background-color: var(--primary-color);
+        position: absolute;
+        top: var(--header-height);
+        left: 0;
+        width: 100%;
+        display: none;
+    }
+
+    .navbar li {
+        margin: 10px 0;
+    }
+
+    .navbar a {
+        font-size: 1.2rem;
+    }
+
+    .header .menu-toggle {
+        display: block;
+        cursor: pointer;
+        margin-left: auto;
+        padding: 10px;
+    }
+
+    .grid-item {
+        flex: 1 1 100%;
+        max-width: 100%;
+    }
+}
+
+/* Additional Styles for Specific Pages */
+
+/* View Page */
+.restaurant {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    background-color: var(--secondary-color);
+    transition: box-shadow var(--transition-speed);
+}
+
+.restaurant:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.restaurant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.restaurant-header span {
+    font-size: 1.2rem;
+    color: var(--primary-color);
+}
+
+.restaurant-details {
+    margin-top: 20px;
+}
+
+.menu-version {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    background-color: #f7f7f7;
+    transition: background-color var(--transition-speed);
+    cursor: pointer;
+}
+
+.menu-version:hover {
+    background-color: #eaeaea;
+}
+
+.menu-version strong {
+    color: var(--primary-color);
+}
+
+.menu-version button {
+    background-color: #e74c3c;
+    color: var(--secondary-color);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+.menu-version button:hover {
+    background-color: #c0392b;
+}
+
+/* Upload Page */
+#general {
+    padding: 60px 20px;
+    background-color: var(--background-color);
+}
+
+#general h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    color: var(--primary-color);
+    margin-bottom: 40px;
+}
+
+#output {
+    margin-top: 20px;
+    font-size: 1rem;
+    color: var(--text-color);
+}
+
+/* Menu Inspect Page */
+#menu {
+    max-width: 800px;
+    margin: 40px auto;
+    background-color: var(--secondary-color);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#menu p {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+#menu p strong {
+    color: var(--primary-color);
+}
+
+/* Buttons */
+button.delete {
+    background-color: #e74c3c;
+    color: var(--secondary-color);
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: background-color var(--transition-speed);
+}
+
+button.delete:hover {
+    background-color: #c0392b;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--background-color);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+
+
+
+.menu-info-container {
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  button.delete:hover {
-    opacity: 0.8;
+  
+  .menu-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #1e40af;
+    margin-bottom: 15px;
+    text-align: center;
   }
-/* -------------------------------------------------------VIEW.HTML--------------------------------------------------------------------- */
-/* -------------------------------------------------------ABOUT.HTML--------------------------------------------------------------------- */
-
-
-
-
-
-
-/* -------------------------------------------------------ABOUT.HTML--------------------------------------------------------------------- */
+  
+  .menu-data p {
+    margin: 8px 0;
+  }
+  
+  .viewSection {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .viewSection h3 {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    color: #1e40af;
+  }
+  
+  .menu-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .menu-table th,
+  .menu-table td {
+    border: 1px solid #e0e0e0;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .menu-table th {
+    background-color: #1e40af;  /* Header background color */
+    color: white;
+  }
+  
+  .menu-table tbody tr:nth-child(even) {
+    background-color: #f1faff;
+  }
+  .menu-table tbody tr:nth-child(odd) {
+    background-color: #ffffff;  /* Even row background color */
+  }
+  .menu-table tbody tr {
+    transition: background-color 0.3s ease; /* Optional: transition effect for hover */
+  }
+  
+  .menu-table tbody tr:hover {
+    background-color: #d0e2ff;  /* Hover effect on rows */
+  }
+  
+  table {
+    background-color: #fff;
+    border: 1px solid #e0e0e0;
+  }

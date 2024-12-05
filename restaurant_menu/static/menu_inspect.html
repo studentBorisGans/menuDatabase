@@ -3,32 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Menu Management App</title>
+    <title>Inspect Menu</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script>
-        const menuId = {{ menu_id }};  // Pass the menu ID to the script
+        const menuId = {{ menu_id }};
     </script>
-    <!-- {{ menu_data|json_script:"menu_data" }} Inject the menu data from Django -->
     <style>
-        
-    </style>
+        /* Embedded styling for elements */
+        .menu-info-container {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
 
+        .menu-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .menu-data p {
+            margin: 8px 0;
+        }
+
+        .section {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+            color: #1e40af;
+        }
+
+        .menu-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background-color: #fff;
+            border: 1px solid #e0e0e0;
+        }
+
+        .menu-table th,
+        .menu-table td {
+            border: 1px solid #e0e0e0;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .menu-table th {
+            background-color: #1e40af;
+            color: white;
+        }
+
+        .menu-table tbody tr:nth-child(even) {
+            background-color: #f1faff;
+        }
+    </style>
 </head>
 <body>
+    <!-- Header -->
     <header class="header">
         <div class="container flex justify-between items-center">
             <nav>
                 <ul class="navbar">
-                    <li><a href="{%url 'home' %}">Home</a></li>
-                    <li><a href="{%url 'about' %}">About</a></li>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'about' %}">About</a></li>
                     <li><a href="{% url 'pdf_upload' %}">Upload a Menu</a></li>
                     <li><a href="{% url 'view_uploads' %}">View Menus</a></li>
-                </ul>                
+                </ul>
             </nav>
         </div>
     </header>
 
+    <!-- Main Content -->
     <main class="container">
         <h1>Inspect Menu</h1>
         <div class="menu-info-container" id="menu-container">
@@ -39,9 +98,12 @@
         </div>
     </main>
 
+    <!-- JavaScript -->
     <script>
         const menuContainer = document.getElementById('menu-container');
         const sectionsContainer = document.getElementById('sections-container');
+
+        // Fetch menu data
         fetch(`/menu_version/${menuId}/data/`)
             .then(response => response.json())
             .then(data => {
@@ -61,7 +123,7 @@
                 if (data.sections && data.sections.length > 0) {
                     data.sections.forEach(section => {
                         const sectionDiv = document.createElement('div');
-                        sectionDiv.className = 'viewSection';
+                        sectionDiv.className = 'section';
 
                         // Add section name and average section price
                         sectionDiv.innerHTML = `
@@ -105,82 +167,9 @@
                 console.error('Error fetching menu data:', error);
                 menuContainer.innerHTML = '<p>Failed to load menu data.</p>';
             });
-        // if (!menuData || menuData.length === 0) {
-        //     menuContainer.innerHTML = "<p>No menu data available to display.</p>";
-        // } else {
-        //     const table = document.createElement('table');
-        //     table.className = 'menu-table';
-
-        //     // Add table headers
-        //     table.innerHTML = `
-        //         <thead>
-        //             <tr>
-        //                 <th>Food Name</th>
-        //                 <th>Category</th>
-        //                 <th>Price</th>
-        //                 <th>Description</th>
-        //             </tr>
-        //         </thead>
-        //         <tbody>
-        //             ${menuData.items.map(item => `
-        //                 <tr>
-        //                     <td>${item.food_name || 'N/A'}</td>
-        //                     <td>${item.category || 'N/A'}</td>
-        //                     <td>${item.price ? `$${item.price}` : 'N/A'}</td>
-        //                     <td>${item.description || 'No description provided'}</td>
-        //                 </tr>
-        //             `).join('')}
-        //         </tbody>
-        //     `;
-
-        //     menuContainer.appendChild(table);
-        // }
-        // const menuDataDiv = document.getElementById('menu');
-
-        // Fetch menu data
-        // fetch(`/menu_version/${menuId}/data/`)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         const table = document.createElement('table');
-        //         console.log(data)
-        //         table.className = 'menu-table';
-
-        //         // Add table headers
-        //         table.innerHTML = `
-        //             <thead>
-        //                 <tr>
-        //                     <th>Food Name</th>
-        //                     <th>Category</th>
-        //                     <th>Price</th>
-        //                     <th>Description</th>
-        //                 </tr>
-        //             </thead>
-        //             <tbody>
-        //                 ${data.items.map(item => `
-        //                     <tr>
-        //                         <td>${item.food_name || 'N/A'}</td>
-        //                         <td>${item.category || 'N/A'}</td>
-        //                         <td>${item.price ? `$${item.price}` : 'N/A'}</td>
-        //                         <td>${item.description || 'No description provided'}</td>
-        //                     </tr>
-        //                 `).join('')}
-        //             </tbody>
-        //         `;
-                // menuDataDiv.innerHTML = `
-                //     <p><strong>Version ID:</strong> ${data.version_id}</p>
-                //     <p><strong>Created At:</strong> ${data.created_at}</p>
-                //     <p><strong>Description:</strong> ${data.description}</p>
-                //     <p><strong>Status:</strong> ${data.status}</p>
-                // `;
-                // console.log(data)
-            // })
-            // .catch(error => {
-            //     console.error('Error fetching menu data:', error);
-            //     menuDataDiv.textContent = 'Failed to load menu data.';
-            // });
-
     </script>
-    <!-- Change to django + other overarching frameworks used; link to download / documentation -->
+
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <nav>

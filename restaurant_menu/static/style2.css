@@ -1,0 +1,428 @@
+/* Reference */
+
+:root {
+    --primary: #53c6f7;
+    --primary-dark: #1e40af;
+    --header-height: 60px;
+
+    --background: #fcf8f8;
+    --text: #1e293b;
+    --border: #e0e0e0;
+    --shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+/* -------------------------------------------------------GLOBAL--------------------------------------------------------------------- */
+
+.title {
+  color: black;
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.title h1 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  color: var(--primary-color);
+}
+
+.title p {
+  font-size: 1.2rem;
+  color: var(--text-color);
+}
+
+
+main {
+  margin-top: calc(var(--header-height) + 50px);
+  padding: 20px;
+}
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  color: #fff;
+  padding: 1rem 0;
+  z-index: 1000;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+  background-color: #f8f9fa;
+  padding: 10px 20px;
+  box-shadow: var(--shadow);
+  height: var(--header-height);
+}
+
+.navbar {
+  list-style: none;
+  display: flex;
+}
+
+.navbar li {
+  margin: 0 15px;
+}
+
+.navbar a {
+  color: var(--text);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color var(--transition-speed);
+}
+
+.navbar a:hover {
+  color: var(--accent-color);
+}
+
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+  /* flex-direction: column; */
+  /* display: flex; */
+  /* margin: 0; */
+}
+
+.header .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+.text-content,
+.additional-text {
+    max-width: 800px;
+    margin: 0 auto 40px;
+    text-align: center;
+}
+
+.text-content img {
+    max-width: 100%;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+.text-content p,
+.additional-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--text-color);
+}
+
+.additional-text h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: var(--primary-color);
+}
+
+.section-container {
+  display: flex; /* Makes sections inline */
+  flex-wrap: wrap; /* Allows wrapping to a new row if there's insufficient space */
+  gap: 20px; /* Space between cells */
+  justify-content: space-between; /* Ensures sections align nicely */
+  margin: 2rem 0; /* Adds spacing around the container */
+}
+
+.section {
+  flex: 1 1 calc(33.333% - 20px); /* Makes cells responsive: 3 per row */
+  background-color: var(--primary-dark); /* Darker background color */
+  color: #fff; /* White text for contrast */
+  border: 1px solid var(--border); /* Border for cell separation */
+  box-shadow: var(--shadow); /* Add subtle shadow */
+  border-radius: 5px; /* Slightly rounded corners */
+  padding: 1rem; /* Space inside each cell */
+  min-width: 200px; /* Ensures cells don't shrink too small */
+  max-width: 400px; /* Prevents cells from growing too large */
+  text-align: center; /* Centers text in the cells */
+}
+
+/* Text inside the sections */
+.section h2 {
+  margin: 0 0 10px;
+  font-size: 1.25rem; /* Slightly larger heading font */
+  font-weight: bold;
+}
+
+.section p {
+  font-size: 0.9rem; /* Smaller paragraph font */
+  margin: 0;
+}
+
+#error_message {
+  color: #e74c3c;
+  margin-bottom: 20px;
+}
+
+#message {
+  color: #2ecc71;
+  margin-bottom: 20px;
+}
+
+/* Footer */
+
+
+.grid-layout {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.grid-item {
+  background: var(--background);
+  padding: 2rem;
+  text-align: center;
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: #333;
+  color: #fff;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.footer .git li {
+  display: inline-block;
+  margin: 0 0.5rem;
+}
+
+.footer .git a {
+  color: #fff;
+  text-decoration: none;
+}
+
+.footer .git {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer a:hover {
+  text-decoration: underline; /* Adds an underline on hover for accessibility */
+}
+  
+/* -------------------------------------------------------GLOBAL--------------------------------------------------------------------- */
+ 
+
+
+
+  
+  /* .upload-button {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background-color 0.3s ease;
+  }
+  
+  .upload-button:hover {
+    background-color: var(--primary-dark);
+  } */
+
+  /* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
+/* Not working; temporary cleaning of upload menu */
+#general { 
+  display: flex; /* Use flexbox for alignment */
+  flex-direction: column; /* Stack child elements vertically */
+  justify-content: center; /* Center content vertically */
+  align-items: center; /* Center content horizontally */
+  height: 100vh; /* Make the container take up the full viewport height */
+  text-align: center; /* Center-align text inside the container */
+  margin: 0 auto; /* Ensure it stays centered horizontally */
+  background-color: #f9f9f9; /* Optional: Add a light background for better appearance */
+  border: 1px solid #ddd; /* Optional: Add a subtle border */
+  border-radius: 8px; /* Optional: Slightly round the corners */
+  padding: 20px; /* Optional: Add padding around the content */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+fieldset {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+legend {
+  font-weight: bold;
+  padding: 0 10px;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+
+#uploadButton {
+  margin-top: 10px; /* Add space above the button */
+  padding: 10px 20px; /* Add padding to make the button larger */
+  border: none;
+  border-radius: 4px; /* Slightly rounded corners */
+  background-color: #007bff; /* Primary blue color */
+  color: white; /* White text for contrast */
+  font-size: 16px; /* Adjust font size */
+  cursor: pointer; /* Show a pointer on hover */
+  transition: background-color 0.3s ease; /* Smooth hover effect */
+}
+#uploadButton:hover {
+  background-color: #0056b3; /* Darker blue on hover */
+}
+/* -------------------------------------------------------UPLOAD.HTML--------------------------------------------------------------------- */
+
+/* -------------------------------------------------------VIEW.HTML--------------------------------------------------------------------- */
+  .restaurant {
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+  }
+  .restaurant-header {
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      font-weight: bold;
+  }
+  .restaurant-details {
+      display: none;
+      margin-top: 10px;
+  }
+  .menu-version {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 5px;
+      border-radius: 3px;
+      background-color: #f9f9f9;
+      cursor: pointer;
+  }
+  .menu-version:hover {
+      background-color: #eaeaea;
+  }
+  button.delete {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+  }
+  button.delete:hover {
+    opacity: 0.8;
+  }
+/* -------------------------------------------------------VIEW.HTML--------------------------------------------------------------------- */
+.menu-info-container {
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.menu-header {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #1e40af;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.menu-data p {
+  margin: 8px 0;
+}
+
+.viewSection {
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.viewSection h3 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+  color: #1e40af;
+}
+
+.menu-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+.menu-table th,
+.menu-table td {
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  text-align: center;
+}
+
+.menu-table th {
+  background-color: #1e40af;  /* Header background color */
+  color: white;
+}
+
+.menu-table tbody tr:nth-child(even) {
+  background-color: #f1faff;
+}
+.menu-table tbody tr:nth-child(odd) {
+  background-color: #ffffff;  /* Even row background color */
+}
+.menu-table tbody tr {
+  transition: background-color 0.3s ease; /* Optional: transition effect for hover */
+}
+
+.menu-table tbody tr:hover {
+  background-color: #d0e2ff;  /* Hover effect on rows */
+}
+
+table {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+}
+
+
+/* -------------------------------------------------------ABOUT.HTML--------------------------------------------------------------------- */
+
+
+
+
+
+
+/* -------------------------------------------------------ABOUT.HTML--------------------------------------------------------------------- */

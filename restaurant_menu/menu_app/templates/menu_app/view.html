@@ -8,83 +8,52 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     {{ menu_data|json_script:"menu_data" }}
     <script>
-        async function fetchProcessingMenus() {
-            try {
-                const response = await fetch("/show_processing/");
-                if (!response.ok) {
-                    throw new Error("Failed to fetch processing menus.");
-                }
+        // async function fetchProcessingMenus() {
+        //     try {
+        //         const response = await fetch("/show_processing/");
+        //         if (!response.ok) {
+        //             throw new Error("Failed to fetch processing menus.");
+        //         }
 
-                const processingMenus = await response.json();
-                console.log(processingMenus.processes)
+        //         const processingMenus = await response.json();
+        //         console.log(processingMenus.processes)
 
-                const processingContainer = document.getElementById('processing-section');
-                processingContainer.innerHTML = ""; // Clear the container
+        //         const processingContainer = document.getElementById('processing-section');
+        //         processingContainer.innerHTML = ""; // Clear the container
 
-                if (processingMenus.processes.length === 0) {
-                    processingContainer.innerHTML = "<p>No menus are currently processing.</p>";
-                } else {
-                    processingMenus.processes.forEach(menu => {
-                        const menuDiv = document.createElement('div');
-                        menuDiv.className = 'processing-menu';
-// 'restaurant': restaurantInfo.get('name'),
-//                 'menu': menuName,
-//                 'start': datetime.now().isoformat()
-
-                        menuDiv.innerHTML = `
-                            <p>Restaurant Name: ${menu.restaurant}</p>
-                            <p>Menu Name: ${menu.menu}</p>
-                            <div class="time-since">
-                                <p id="counter">${menu.start}</p>
-                            </div>
-                        `;
-                        processingContainer.appendChild(menuDiv);
-                        // startTimer(menu.start, count)
-                    });
-                    // startProcessingInterval(count);
-                }
-            } catch (error) {
-                console.error("Error fetching processing menus:", error);
-            }
-        }
-        fetchProcessingMenus();
-
-        function startProcessingInterval(count) {
-            if (count > 0) {
-                fetchProcessingMenus();
-            } else {
-                // index = activeTimers.indexOf(count);
-                // activeTimers.splice(index, 1)
-                console.log("No more processing.");
-            }
-        }
-
-        // let intervalId;
-        // function startTimer(startTime, id) {
-        //     const startTimeDate = new Date(startTime);  // Convert ISO 8601 string to a Date object
-        //     const counterElement = document.getElementById(`counter${id}`);
-
-        //     intervalId = setInterval(() => {
-        //         const currentTime = new Date();  // Get the current time
-        //         const elapsedTime = currentTime - startTimeDate; // Elapsed time in milliseconds
-
-        //         // Convert elapsed time to minutes and seconds
-        //         const totalSeconds = Math.floor(elapsedTime / 1000);
-        //         const minutes = Math.floor(totalSeconds / 60);
-        //         const seconds = totalSeconds % 60;
-
-        //         // Display the elapsed time in the counter element
-        //         counterElement.innerText = `Elapsed Time: ${minutes}m ${seconds}s`;
-        //     }, 1000);  // Update every second   
+        //         if (processingMenus.processes.length === 0) {
+        //             processingContainer.innerHTML = "<p>No menus are currently processing.</p>";
+        //         } else {
+        //             processingMenus.processes.forEach(menu => {
+        //                 const menuDiv = document.createElement('div');
+        //                 menuDiv.className = 'processing-menu';
+        //                 menuDiv.innerHTML = `
+        //                     <p>Restaurant Name: ${menu.restaurant}</p>
+        //                     <p>Menu Name: ${menu.menu}</p>
+        //                     <div class="time-since">
+        //                         <p id="counter">${menu.start}</p>
+        //                     </div>
+        //                 `;
+        //                 processingContainer.appendChild(menuDiv);
+        //                 // startTimer(menu.start, count)
+        //             });
+        //             // startProcessingInterval(count);
+        //         }
+        //     } catch (error) {
+        //         console.error("Error fetching processing menus:", error);
+        //     }
         // }
+        // fetchProcessingMenus();
 
-        // function stopTimer() {
-        //     clearInterval(intervalId);
-        //     console.log("Timer stopped.");
+        // function startProcessingInterval(count) {
+        //     if (count > 0) {
+        //         fetchProcessingMenus();
+        //     } else {
+        //         // index = activeTimers.indexOf(count);
+        //         // activeTimers.splice(index, 1)
+        //         console.log("No more processing.");
+        //     }
         // }
-
-
-
 
         function toggleDetails(restaurantId) {
             const detailsDiv = document.getElementById(`details-${restaurantId}`);
@@ -116,7 +85,7 @@
     </header>
 
     <h1>Menu Viewer</h1>
-    <div id="processing-section"></div>
+    <!-- <div id="processing-section"></div> -->
     <div id="restaurant-container">
         <!-- Placeholder for dynamically inserted content -->
     </div>
@@ -129,103 +98,165 @@
         console.log(menuData)
         
         const container = document.getElementById('restaurant-container');
+        function updateDisplay(data) {
+            container.innerHTML = ""
+            data.forEach((restaurant) => {
+                const restaurantDiv = document.createElement('div');
+                restaurantDiv.className = 'restaurant';
 
-        menuData.forEach((restaurant) => {
-            const restaurantDiv = document.createElement('div');
-            restaurantDiv.className = 'restaurant';
+                // Header showing restaurant name, creation date, and number of entries
+                const headerDiv = document.createElement('div');
+                headerDiv.className = 'restaurant-header';
+                headerDiv.style.display = 'flex';
+                headerDiv.style.justifyContent = 'space-between';
+                headerDiv.style.alignItems = 'center';
 
-            // Header showing restaurant name, creation date, and number of entries
-            const headerDiv = document.createElement('div');
-            headerDiv.className = 'restaurant-header';
-            headerDiv.style.display = 'flex';
-            headerDiv.style.justifyContent = 'space-between';
-            headerDiv.style.alignItems = 'center';
-
-            headerDiv.onclick = () => toggleDetails(restaurant.id);
-            
-            headerDiv.innerHTML = `
-                <span>${restaurant.name}</span>
-                <span>Created: ${restaurant.created_at}</span>
-                <span>Entries: ${restaurant.menus.length}</span>
-            `;
-            restaurantDiv.appendChild(headerDiv);
-
-            // Expandable details section
-            const detailsDiv = document.createElement('div');
-            detailsDiv.className = 'restaurant-details';
-            detailsDiv.id = `details-${restaurant.id}`;
-            detailsDiv.style.display = 'none';
-
-            // Add menu versions
-            restaurant.menus.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach((menu) => {
-                const menuDiv = document.createElement('div');
-                menuDiv.className = 'menu-version';
-                menuDiv.onclick = () => loadMenuVersion(menu.menu_id);
+                headerDiv.onclick = () => toggleDetails(restaurant.id);
                 
-                const menuContent = document.createElement('div');
-                menuContent.style.display = 'flex'; // Use flexbox to spread items
-                menuContent.style.justifyContent = 'space-between'; // Spread items across the div
-                menuContent.style.alignItems = 'center'; // Align items vertically in the center
-                menuContent.style.flex = '1';
-                menuContent.style.marginRight = '10px';
-
-                menuContent.innerHTML = `
-                    <span><strong>Created:</strong> ${menu.created_at}</span>
-                    <span><strong>Description:</strong> ${menu.description || 'No description provided'}</span>
-                    <span><strong>Status:</strong> ${menu.status}</span>
+                headerDiv.innerHTML = `
+                    <span>${restaurant.name}</span>
+                    <span>Created: ${restaurant.created_at}</span>
+                    <span>Entries: ${restaurant.menus.length}</span>
                 `;
+                restaurantDiv.appendChild(headerDiv);
 
-                // Buttons
-                const buttonContainer = document.createElement('div');
+                // Expandable details section
+                const detailsDiv = document.createElement('div');
+                detailsDiv.className = 'restaurant-details';
+                detailsDiv.id = `details-${restaurant.id}`;
+                detailsDiv.style.display = 'none';
 
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'delete'
-                deleteButton.textContent = 'Delete';
-                deleteButton.style.backgroundColor = '#dc3545';
-                deleteButton.style.color = '#fff';
-                deleteButton.style.border = 'none';
-                deleteButton.style.borderRadius = '5px';
-                deleteButton.style.padding = '5px 10px';
-                deleteButton.style.cursor = 'pointer';
-                deleteButton.onclick = (e) => {
-                    e.stopPropagation(); // Prevent triggering the parent onclick event
-                    deleteMenu(menu.menu_id);
-                };
-                buttonContainer.appendChild(deleteButton);
+                // Add menu versions
+                restaurant.menus.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach((menu) => {
+                    const menuDiv = document.createElement('div');
+                    menuDiv.className = 'menu-version';
+                    menuDiv.onclick = () => loadMenuVersion(menu.menu_id);
+                    
+                    const menuContent = document.createElement('div');
+                    menuContent.style.display = 'flex'; // Use flexbox to spread items
+                    menuContent.style.justifyContent = 'space-between'; // Spread items across the div
+                    menuContent.style.alignItems = 'center'; // Align items vertically in the center
+                    menuContent.style.flex = '1';
+                    menuContent.style.marginRight = '10px';
 
-                menuDiv.appendChild(menuContent);
-                menuDiv.appendChild(buttonContainer);
+                    menuContent.innerHTML = `
+                        <span><strong>Created:</strong> ${menu.created_at}</span>
+                        <span><strong>Description:</strong> ${menu.description || 'No description provided'}</span>
+                        <span><strong>Status:</strong> ${menu.status}</span>
+                    `;
 
-                detailsDiv.appendChild(menuDiv);
+                    // Buttons
+                    const buttonContainer = document.createElement('div');
+
+                    const deleteButton = document.createElement('button');
+                    deleteButton.className = 'delete'
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.style.backgroundColor = '#dc3545';
+                    deleteButton.style.color = '#fff';
+                    deleteButton.style.border = 'none';
+                    deleteButton.style.borderRadius = '5px';
+                    deleteButton.style.padding = '5px 10px';
+                    deleteButton.style.cursor = 'pointer';
+                    deleteButton.onclick = (e) => {
+                        e.stopPropagation(); // Prevent triggering the parent onclick event
+                        deleteMenu(menu.menu_id);
+                    };
+                    buttonContainer.appendChild(deleteButton);
+
+                    menuDiv.appendChild(menuContent);
+                    menuDiv.appendChild(buttonContainer);
+
+                    detailsDiv.appendChild(menuDiv);
+                });
+
+                restaurantDiv.appendChild(detailsDiv);
+                container.appendChild(restaurantDiv);
             });
-
-            restaurantDiv.appendChild(detailsDiv);
-            container.appendChild(restaurantDiv);
-        });
+        }
+        updateDisplay(menuData);
+        
 
         function editMenu(menuId) {
             console.log('Edit menu:', menuId);
         }
 
         function deleteMenu(menuId) {
-            console.log(menuId)
-            fetch("{% url 'delete_menu' %}", {
+            console.log(menuId);  // Log the menu ID for debugging
+
+            // Send a POST request to the `view_uploads` view
+            fetch("{% url 'view_uploads' %}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}",
+                    "X-CSRFToken": "{{ csrf_token }}",  // Use a function to dynamically retrieve CSRF token
                 },
                 body: JSON.stringify({
-                    "menu_id": menuId 
+                    "menu_id": menuId  // Send the menu ID to the server
                 })
             })
             .then(response => response.json())
             .then(data => {
-                console.log(data.message); 
-                // Auto refresh page?
+                console.log("Refreshing")
+                console.log(data.menu_data);  // Handle success message
+                updateDisplay(data.menu_data);
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error("Error:", error));
         }
+
+        // Function to refresh the specific div
+        function refreshDiv() {
+            fetch("{% url 'view_uploads' %}")  // GET request to the same view for updated content
+                .then(response => response.text())
+                .then(data => {
+                    // Replace the content of the div with the new data
+                    // document.getElementById("menu-container").innerHTML = data;
+                    console.log("Refreshing")
+                    console.log(data)
+                })
+                .catch(error => console.error("Error refreshing content:", error));
+        }
+
+        // function deleteMenu(menuId) {
+        //     console.log(menuId);  // Log the menu ID for debugging
+
+        //     // Send a POST request to the `view_uploads` view
+        //     fetch("{% url 'view_uploads' %}", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "X-CSRFToken": "{{ csrf_token }}",  // Use a function to dynamically retrieve CSRF token
+        //         },
+        //         body: JSON.stringify({
+        //             "menu_id": menuId  // Send the menu ID to the server
+        //         })
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log(data);  // Handle success message
+        //         // refreshDiv();  // Refresh the specific content
+        //     })
+        //     .catch(error => console.error("Error:", error));
+        // }
+
+        // function deleteMenu(menuId) {
+        //     console.log(menuId)
+        //     fetch("{% url 'delete_menu' %}", {
+        //         method: "POST",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "X-CSRFToken": "{{ csrf_token }}",
+        //         },
+        //         body: JSON.stringify({
+        //             "menu_id": menuId 
+        //         })
+        //     })
+        //     .then(response => response.json())
+        //     .then(data => {
+        //         console.log(data.message); 
+        //         // Auto refresh page?
+        //     })
+        //     .catch(error => console.error('Error:', error));
+        // }
 
 
     </script>
