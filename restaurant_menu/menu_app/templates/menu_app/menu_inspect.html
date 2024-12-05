@@ -7,9 +7,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'style.css' %}">
     <script>
-        const menuId = {{ menu_id }};  // Pass the menu ID to the script
+        const menuId = {{ menu_id }};
     </script>
-    <!-- {{ menu_data|json_script:"menu_data" }} Inject the menu data from Django -->
     <style>
         
     </style>
@@ -31,15 +30,9 @@
 
     <main class="container">
         <h1>Inspect Menu</h1>
-        <div class="menu-info-container" id="menu-container">
-            <!-- General menu information -->
-        </div>
-        <!-- <div id="buttonsContainer">
-            <button onclick="showSection('all')">Show All</button>
-        </div> -->
-        <div id="sections-container">
-            <!-- Sections will be dynamically added here -->
-        </div>
+        <div class="menu-info-container" id="menu-container"></div>
+
+        <div id="sections-container"></div>
     </main>
 
     <script>
@@ -48,7 +41,6 @@
         fetch(`/menu_version/${menuId}/data/`)
             .then(response => response.json())
             .then(data => {
-                // Populate general menu information
                 menuContainer.innerHTML = `
                     <div class="menu-data">
                         <p><strong>Version Number:</strong> ${data.version_number}</p>
@@ -65,18 +57,14 @@
                 if (data.sections && data.sections.length > 0) {
                     data.sections.forEach(section => {
 
-
-
                         const sectionDiv = document.createElement('div');
                         sectionDiv.className = 'viewSection';
 
-                        // Add section name and average section price
                         sectionDiv.innerHTML = `
                             <h3>${section.section_name}</h3>
                             <p><strong>Average Section Price:</strong> $${section.avg_section_price.toFixed(2)}</p>
                         `;
 
-                        // Add table for menu items
                         const table = document.createElement('table');
                         table.className = 'menu-table';
 
@@ -101,11 +89,9 @@
                             </tbody>
                         `;
                         sectionDiv.appendChild(table);
-                        // collapseAbleDiv.appendChild(sectionDiv)
                         sectionsContainer.appendChild(sectionDiv);
                     });
                 } else {
-                    // Fallback for no sections
                     sectionsContainer.innerHTML = '<p>No sections available for this menu.</p>';
                 }
             })
@@ -113,6 +99,9 @@
                 console.error('Error fetching menu data:', error);
                 menuContainer.innerHTML = '<p>Failed to load menu data.</p>';
             });
+
+
+            // Future expansion; filter per section
 
         //     function showSection(sectionName) {
         //         // const targetClass = button.innerHTML.trim();
@@ -124,111 +113,29 @@
         //                 Array.from(sectionsContainer.children).forEach(child => {
         //                     child.style.display = 'block';
         //                 });
-        //         } else {
-        //             if (sectionsContainer) {
-        //                 // Hide all child elements of sectionsContainer
-        //                 Array.from(sectionsContainer.children).forEach(child => {
-        //                     child.style.display = 'none';
-        //                 });
+        //              } else {
+        //                  if (sectionsContainer) {
+            //                 Array.from(sectionsContainer.children).forEach(child => {
+            //                     child.style.display = 'none';
+            //                 });
 
-        //                 // Show the element with the matching class name
-        //                 const targetElement = sectionsContainer.querySelector(`.${sectionName}`);
-        //                 if (targetElement) {
-        //                     targetElement.style.display = 'block';
-        //                 } else {
-        //                     console.warn(`No element found with class name "${sectionName}"`);
-        //                 }
-        //             }
-        //         }
-
-                
-        //     }
-        // }
-
-
-
-        // if (!menuData || menuData.length === 0) {
-        //     menuContainer.innerHTML = "<p>No menu data available to display.</p>";
-        // } else {
-        //     const table = document.createElement('table');
-        //     table.className = 'menu-table';
-
-        //     // Add table headers
-        //     table.innerHTML = `
-        //         <thead>
-        //             <tr>
-        //                 <th>Food Name</th>
-        //                 <th>Category</th>
-        //                 <th>Price</th>
-        //                 <th>Description</th>
-        //             </tr>
-        //         </thead>
-        //         <tbody>
-        //             ${menuData.items.map(item => `
-        //                 <tr>
-        //                     <td>${item.food_name || 'N/A'}</td>
-        //                     <td>${item.category || 'N/A'}</td>
-        //                     <td>${item.price ? `$${item.price}` : 'N/A'}</td>
-        //                     <td>${item.description || 'No description provided'}</td>
-        //                 </tr>
-        //             `).join('')}
-        //         </tbody>
-        //     `;
-
-        //     menuContainer.appendChild(table);
-        // }
-        // const menuDataDiv = document.getElementById('menu');
-
-        // Fetch menu data
-        // fetch(`/menu_version/${menuId}/data/`)
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         const table = document.createElement('table');
-        //         console.log(data)
-        //         table.className = 'menu-table';
-
-        //         // Add table headers
-        //         table.innerHTML = `
-        //             <thead>
-        //                 <tr>
-        //                     <th>Food Name</th>
-        //                     <th>Category</th>
-        //                     <th>Price</th>
-        //                     <th>Description</th>
-        //                 </tr>
-        //             </thead>
-        //             <tbody>
-        //                 ${data.items.map(item => `
-        //                     <tr>
-        //                         <td>${item.food_name || 'N/A'}</td>
-        //                         <td>${item.category || 'N/A'}</td>
-        //                         <td>${item.price ? `$${item.price}` : 'N/A'}</td>
-        //                         <td>${item.description || 'No description provided'}</td>
-        //                     </tr>
-        //                 `).join('')}
-        //             </tbody>
-        //         `;
-                // menuDataDiv.innerHTML = `
-                //     <p><strong>Version ID:</strong> ${data.version_id}</p>
-                //     <p><strong>Created At:</strong> ${data.created_at}</p>
-                //     <p><strong>Description:</strong> ${data.description}</p>
-                //     <p><strong>Status:</strong> ${data.status}</p>
-                // `;
-                // console.log(data)
-            // })
-            // .catch(error => {
-            //     console.error('Error fetching menu data:', error);
-            //     menuDataDiv.textContent = 'Failed to load menu data.';
-            // });
+            //                 const targetElement = sectionsContainer.querySelector(`.${sectionName}`);
+            //                 if (targetElement) {
+            //                     targetElement.style.display = 'block';
+            //                 } else {
+            //                     console.warn(`No element found with class name "${sectionName}"`);
+            //                 }
+        //                  }
+        //         }   
+        //      }
 
     </script>
-    <!-- Change to django + other overarching frameworks used; link to download / documentation -->
     <footer class="footer">
         <div class="container">
             <nav>
                 <ul class="git">
                     <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
-                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                    <li><a href="https://borisgans.com">(Eventually) Cool Website</a></li>
                 </ul>
             </nav>
         </div>

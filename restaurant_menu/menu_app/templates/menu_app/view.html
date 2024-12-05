@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="{% static 'style.css' %}">
     {{ menu_data|json_script:"menu_data" }}
     <script>
+        // Attempted threading for realtime updates about a pdf upload
+
         // async function fetchProcessingMenus() {
         //     try {
         //         const response = await fetch("/show_processing/");
@@ -45,16 +47,6 @@
         // }
         // fetchProcessingMenus();
 
-        // function startProcessingInterval(count) {
-        //     if (count > 0) {
-        //         fetchProcessingMenus();
-        //     } else {
-        //         // index = activeTimers.indexOf(count);
-        //         // activeTimers.splice(index, 1)
-        //         console.log("No more processing.");
-        //     }
-        // }
-
         function toggleDetails(restaurantId) {
             const detailsDiv = document.getElementById(`details-${restaurantId}`);
             if (detailsDiv.style.display === "none") {
@@ -65,7 +57,6 @@
         }
 
         function loadMenuVersion(menuId) {
-            // Render a new HTML file for the menu version
             window.location.href = `/inspect_menu/${menuId}/`;
         }
     </script>
@@ -86,15 +77,10 @@
     <div id="general">
         <h1>Menu Viewer</h1>
 
-    <!-- <div id="processing-section"></div> -->
-    <div id="restaurant-container">
-        <!-- Placeholder for dynamically inserted content -->
-    </div>
+    <div id="restaurant-container"></div>
 
 
     <script>
-        // Replace with JSON data passed from Django
-        // Why error???
         const menuData = JSON.parse(document.getElementById('menu_data').textContent);
         console.log(menuData)
         
@@ -105,7 +91,6 @@
                 const restaurantDiv = document.createElement('div');
                 restaurantDiv.className = 'restaurant';
 
-                // Header showing restaurant name, creation date, and number of entries
                 const headerDiv = document.createElement('div');
                 headerDiv.className = 'restaurant-header';
                 headerDiv.style.display = 'flex';
@@ -121,22 +106,20 @@
                 `;
                 restaurantDiv.appendChild(headerDiv);
 
-                // Expandable details section
                 const detailsDiv = document.createElement('div');
                 detailsDiv.className = 'restaurant-details';
                 detailsDiv.id = `details-${restaurant.id}`;
                 detailsDiv.style.display = 'none';
 
-                // Add menu versions
                 restaurant.menus.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).forEach((menu) => {
                     const menuDiv = document.createElement('div');
                     menuDiv.className = 'menu-version';
                     menuDiv.onclick = () => loadMenuVersion(menu.menu_id);
                     
                     const menuContent = document.createElement('div');
-                    menuContent.style.display = 'flex'; // Use flexbox to spread items
-                    menuContent.style.justifyContent = 'space-between'; // Spread items across the div
-                    menuContent.style.alignItems = 'center'; // Align items vertically in the center
+                    menuContent.style.display = 'flex'; 
+                    menuContent.style.justifyContent = 'space-between'; 
+                    menuContent.style.alignItems = 'center';
                     menuContent.style.flex = '1';
                     menuContent.style.marginRight = '10px';
 
@@ -146,7 +129,6 @@
                         <span><strong>Status:</strong> ${menu.status}</span>
                     `;
 
-                    // Buttons
                     const buttonContainer = document.createElement('div');
 
                     const deleteButton = document.createElement('button');
@@ -182,83 +164,35 @@
         }
 
         function deleteMenu(menuId) {
-            console.log(menuId);  // Log the menu ID for debugging
 
-            // Send a POST request to the `view_uploads` view
             fetch("{% url 'view_uploads' %}", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "X-CSRFToken": "{{ csrf_token }}",  // Use a function to dynamically retrieve CSRF token
+                    "X-CSRFToken": "{{ csrf_token }}",
                 },
                 body: JSON.stringify({
-                    "menu_id": menuId  // Send the menu ID to the server
+                    "menu_id": menuId
                 })
             })
             .then(response => response.json())
             .then(data => {
                 console.log("Refreshing")
-                console.log(data.menu_data);  // Handle success message
+                console.log(data.menu_data);
                 updateDisplay(data.menu_data);
             })
             .catch(error => console.error("Error:", error));
         }
 
-        // Function to refresh the specific div
         function refreshDiv() {
-            fetch("{% url 'view_uploads' %}")  // GET request to the same view for updated content
+            fetch("{% url 'view_uploads' %}") 
                 .then(response => response.text())
                 .then(data => {
-                    // Replace the content of the div with the new data
-                    // document.getElementById("menu-container").innerHTML = data;
                     console.log("Refreshing")
                     console.log(data)
                 })
                 .catch(error => console.error("Error refreshing content:", error));
         }
-
-        // function deleteMenu(menuId) {
-        //     console.log(menuId);  // Log the menu ID for debugging
-
-        //     // Send a POST request to the `view_uploads` view
-        //     fetch("{% url 'view_uploads' %}", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "X-CSRFToken": "{{ csrf_token }}",  // Use a function to dynamically retrieve CSRF token
-        //         },
-        //         body: JSON.stringify({
-        //             "menu_id": menuId  // Send the menu ID to the server
-        //         })
-        //     })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         console.log(data);  // Handle success message
-        //         // refreshDiv();  // Refresh the specific content
-        //     })
-        //     .catch(error => console.error("Error:", error));
-        // }
-
-        // function deleteMenu(menuId) {
-        //     console.log(menuId)
-        //     fetch("{% url 'delete_menu' %}", {
-        //         method: "POST",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "X-CSRFToken": "{{ csrf_token }}",
-        //         },
-        //         body: JSON.stringify({
-        //             "menu_id": menuId 
-        //         })
-        //     })
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         console.log(data.message); 
-        //         // Auto refresh page?
-        //     })
-        //     .catch(error => console.error('Error:', error));
-        // }
-
 
     </script>
 
@@ -267,7 +201,7 @@
             <nav>
                 <ul class="git">
                     <li><a href="https://github.com/studentBorisGans/menuDatabase.git">GitHub</a></li>
-                    <li><a href="https://github.com/studentBorisGans/menuDatabase.git">Documentation</a></li>
+                    <li><a href="https://borisgans.com">(Eventually) Cool Website</a></li>
                 </ul>
             </nav>
         </div>

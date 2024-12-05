@@ -22,17 +22,15 @@ load_dotenv()
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-0#j$+_pmrcyiew@7!twvnnvqsuwg6kgncru4g3v3d-n092($)m'
+SECRET_KEY = os.getenv('SECRET_KEY')
 API_KEY = os.getenv('API_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
 ALLOWED_HOSTS = []
 
 
 # Application definition
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

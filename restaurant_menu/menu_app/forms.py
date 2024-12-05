@@ -5,25 +5,6 @@ from PyPDF2 import PdfReader
 from .models import Restaurants
 
 class PDFUploadForm(forms.Form):
-    # restaurant_name = forms.ChoiceField(
-    #     max_length=100,
-    #     required=True,
-    #     label="Select or Create Restaurant",
-    # )
-
-    # # Text field for creating a new entry (hidden by default, revealed by JS)
-    # new_restaurant_name = forms.CharField(
-    #     max_length=100,
-    #     required=False,  # This field is optional
-    #     label="New Restaurant Name",
-    # )
-
-
-    # address = forms.CharField(max_length=200, required=False, label="Address")
-    # phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
-    # email = forms.EmailField(required=False, label="Email Address")
-    # website = forms.URLField(required=False, label="Website URL")
-
     restaurant_name = forms.CharField(max_length=100, required=True, label="Restaurant Name")
     address = forms.CharField(max_length=200, required=False, label="Address")
     phone_number = forms.CharField(max_length=15, required=False, label="Phone Number")
@@ -34,7 +15,6 @@ class PDFUploadForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # self.cleaned_file = None
         self.error_message = None
 
     def clean_pdf_file(self):

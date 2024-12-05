@@ -16,7 +16,7 @@ urlpatterns = [
     path('upload/', views.handle_pdf_upload, name='pdf_upload'),
     path('view/', views.view_uploads, name='view_uploads'),
     path('about/', views.about, name='about'),
-    # AJAX Requests
+    # Data Requests
     path('inspect_menu/<int:menu_id>/', views.inspect_menu, name='inspect_menu'),
     path('menu_version/<int:menu_id>/data/', get_menu_data, name='get_menu_data'),
     path('delete_menu/', views.delete_menu, name="delete_menu"),

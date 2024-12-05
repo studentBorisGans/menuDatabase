@@ -98,8 +98,6 @@ class MenuService:
             version_id=version_id, status=status, error_message=error_message
         )
     
-    # Transaction to rollback DB in case of DB error; logs are for processing errors, not DB errors
-    # @transaction.atomic
     @staticmethod
     def upload_full_menu(restaurant_data, menu_data, errors):
         """
@@ -113,7 +111,6 @@ class MenuService:
         print(f"Restaurant Data Received: \n{restaurant_data}")
         print(f"Erros Received: \n{errors}")
 
-        
         #----------------------ALWAYS EXECUTE; REGARDLESS OF PARSE SUCCESS--------------------
         with transaction.atomic():
             restaurant = MenuService.get_or_create_restaurant(restaurant_data)
@@ -150,7 +147,7 @@ class MenuService:
                     
                     section_save = transaction.savepoint()
                     try:
-                        section = MenuService.create_menu_section(menu_id, section_name) #Description add
+                        section = MenuService.create_menu_section(menu_id, section_name)
 
                         for item_data in section_data.get('menu_items', []):
                             print(f"Menu_Item: {item_data}")
@@ -290,23 +287,17 @@ class MenuService:
         print(f"Restaurant Data: \n{restaurant_data}")
         return restaurant_data
     
-    # Done
     def delete_menu(menu_id):
         try:
             with transaction.atomic():
-                #Menus.objects.filter(menu_id=menu_id).delete()
-
                 menu = Menus.objects.filter(menu_id=menu_id).first()
                 if not menu:
                     raise ValueError("Menu not found")
 
-                # Step 2: Find the related restaurant object using the menu's restaurant_id
                 restaurant = menu.restaurant
                 if not restaurant:
                     raise ValueError("Restaurant related to menu not found")
-
-                print(f"Params: {restaurant.restaurant_id}, {menu.created_at.replace(microsecond=0)}, {menu.description}")
-                # Step 3: Find the menu_version related to the restaurant and match created_at and description
+                
                 menu_version = Menu_Versions.objects.filter(
                     restaurant=restaurant,
                     description=menu.description
@@ -315,26 +306,20 @@ class MenuService:
                 if not menu_version:
                     raise ValueError("Menu version matching the menu not found")
 
-                # Step 4: Find and delete the associated processing log
                 processing_log = MenuProcessingLogs.objects.filter(version_id=menu_version.version_id).first()
                 if processing_log:
                     processing_log.delete()
 
-                # Step 5: Delete the menu_version and the menu
+                # Cascading deletes turned on
                 menu_version.delete()
                 menu.delete()
-                
-                # Cascading deletes turned on
                 return True
+            
         except Exception as e:
             print(f"Error deleting menu with ID {menu_id}: {e}")
             return False
 
     def get_menu_data(menu_id):
-        # menu = (
-        #     Menus.objects.filter(menu_id=menu_id)
-        #     .prefetch_related('sections', 'versions', 'sections__items', 'versions__processing_logs')
-        # )
         menu = (
             Menus.objects.filter(menu_id=menu_id)
             .prefetch_related(
@@ -387,12 +372,10 @@ class MenuService:
                     restrict = ""
                     if menu_item.menuitemdietaryrestrictions_set.exists():
                         for restriction in menu_item.menuitemdietaryrestrictions_set.all():
-                            dietary_restriction = restriction.restriction  # Access the associated DietaryRestrictions
+                            dietary_restriction = restriction.restriction 
                             restrict = dietary_restriction.name
                             break
-                        # restriction = menu_item.menuitemdietaryrestrictions_set.first()
-                        # dietaryRestriction = restriction.dietaryrestrictions_set.first()
-                        # restrict = dietaryRestriction.name
+
                     section_data["menu_items"].append({
                         "menu_item": menu_item.name,
                         "price": float(menu_item.price),
@@ -400,9 +383,8 @@ class MenuService:
                         "description": menu_item.description
                     })
 
-
-                # Append the section data to the menu_json object
                 menu_json["sections"].append(section_data)
+                
         except Exception as e:
             print(f"Error: {e}")
             return
